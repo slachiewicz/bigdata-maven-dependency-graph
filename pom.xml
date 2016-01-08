@@ -33,6 +33,7 @@
         <module>resolver</module>
         <module>indexer</module>
         <module>spark</module>
+        <module>neo4j</module>
     </modules>
 
 
