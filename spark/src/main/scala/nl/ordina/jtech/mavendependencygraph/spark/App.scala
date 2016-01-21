@@ -3,15 +3,20 @@ package nl.ordina.jtech.mavendependencygraph.spark
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{StreamingContext, Seconds}
 
-class Main {
+object App {
 
   def main(args: Array[String]): Unit = {
-    val host = ???
-    val port = ???
+    val host = args(0)
+    val port = args(1).toInt
     val ssc = new StreamingContext(new SparkConf, Seconds(30))
     val dstream = ssc.socketTextStream(host,port)
 
-    //TODO logic
+
+    dstream.map({ record => 
+      val group, artifact, version = record
+      ((group, artifact, version), Array("Hello","World"))
+    }).print()
+    
 
     ssc.start()
     ssc.awaitTermination()
