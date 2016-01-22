@@ -27,18 +27,66 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spark.version>1.5.1</spark.version>
     </properties>
 
     <modules>
-        <module>resolver</module>
         <module>indexer</module>
-        <module>spark</module>
-        <module>neo4j</module>
         <module>model</module>
+        <module>neo4j</module>
+        <module>resolver</module>
+        <module>spark</module>
     </modules>
 
     <dependencyManagement>
         <dependencies>
+            <!--SCALA-->
+            <dependency>
+                <groupId>org.scala-lang</groupId>
+                <artifactId>scala-library</artifactId>
+                <version>2.10.3</version>
+            </dependency>
+
+            <!--INTERNAL-->
+            <dependency>
+                <groupId>nl.ordina.j-technologies.bigdata.maven.dependency-graph</groupId>
+                <artifactId>indexer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>nl.ordina.j-technologies.bigdata.maven.dependency-graph</groupId>
+                <artifactId>model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>nl.ordina.j-technologies.bigdata.maven.dependency-graph</groupId>
+                <artifactId>neo4j</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>nl.ordina.j-technologies.bigdata.maven.dependency-graph</groupId>
+                <artifactId>resolver</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>nl.ordina.j-technologies.bigdata.maven.dependency-graph</groupId>
+                <artifactId>spark</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!--EXTERNAL-->
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-core_2.10</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.spark</groupId>
+                <artifactId>spark-streaming_2.10</artifactId>
+                <version>${spark.version}</version>
+            </dependency>
+
+            <!--TEST-->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -47,7 +95,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
 
     <build>
 
