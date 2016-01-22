@@ -19,6 +19,15 @@ public class ArtifactVertex implements Serializable {
         this.id = hashCode();
     }
 
+    public ArtifactVertex(final String groupId, final String artifactId, final ArtifactPackaging type, final String version) {
+        this.groupId = groupId;
+        this.artifactId = artifactId;
+        this.version = version;
+        this.type = type;
+        this.classifier = null;
+        this.id = hashCode();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

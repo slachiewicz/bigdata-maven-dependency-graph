@@ -1,6 +1,6 @@
 package nl.ordina.jtech.mavendependencygraph.model;
 
-public enum RelationType {
+public enum Scope {
     Compile,
     Provided,
     Runtime,
