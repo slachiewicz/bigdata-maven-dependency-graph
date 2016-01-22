@@ -12,6 +12,7 @@ object Server {
   
   def serve (port: Int, write: (PrintWriter) => Int) : Option[Int] = {
 
+    println("Ready to serve requests from a Sparkling planet.")
     val listener: ServerSocket = new ServerSocket(port)
     val socket: Try[Socket] = Try(listener.accept())
     val count: Option[Int] = socket match {
