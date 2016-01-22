@@ -42,12 +42,16 @@ class App(config: Config) {
     searcher.update
   
     
-    val totalArtifacts = (new Server(config.port)).serve((out) =>
+    val totalArtifacts: Option[Int] = Server.serve(config.port, (out) =>
       // send the gav's in batches from 'a' to 'z'
       processArtifacts(searcher, out, 'a' to 'z', 0)
     );
 
-    println(s"Done. %d artifacts found.".format(totalArtifacts))
+    totalArtifacts match {
+      case Some(cnt) => println(s"Done. %d artifacts found.".format(cnt))
+      case None => println(s"Done. Some error happened.")
+    }
+    
   }
   
   def processArtifacts(searcher: Searcher, out: PrintWriter, chars: Iterable[Char], acc: Int): Int = {
