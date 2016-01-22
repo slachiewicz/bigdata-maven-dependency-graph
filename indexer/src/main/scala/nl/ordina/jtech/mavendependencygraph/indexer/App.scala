@@ -59,7 +59,12 @@ class App(config: Config) {
 
     // flush buffer and send batch
     out.flush
-    for (ai <- results) out.println((ai.groupId, ai.artifactId, ai.version))
+    for (ai <- results) {
+      out.println(
+        Array(ai.groupId, ai.artifactId, ai.version, 
+        ai.packaging, ai.classifier).mkString(";")
+      )
+    }
 
     return processArtifacts(searcher, out, chars.tail, acc + results.size)
   }
