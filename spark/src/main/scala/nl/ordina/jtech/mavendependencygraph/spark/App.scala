@@ -1,6 +1,6 @@
 package nl.ordina.jtech.mavendependencygraph.spark
 
-import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph
+//import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.{StreamingContext, Seconds}
@@ -22,9 +22,9 @@ object App {
     val ssc = new StreamingContext(conf, Seconds(30))
 
     val dstream = ssc.socketTextStream(host, port)
-    dstream.map(parseMavenEntry)
-           .map(resolveSubGraph)
-           .foreachRDD(sendGraphToNeo _)
+    dstream.map(parseMavenEntry).print()
+//           .map(resolveSubGraph)
+//           .foreachRDD(sendGraphToNeo _)
 
     ssc.start()
     ssc.awaitTermination()
@@ -41,7 +41,7 @@ object App {
     MavenEntry(groupId,artifactId,version,packaging,classifier)
   }
 
-  def resolveSubGraph(mavenEntry: MavenEntry): DependencyGraph = ??? //TODO: Call resolver
-
-  def sendGraphToNeo(graph: RDD[DependencyGraph]): Unit = ??? //TODO: Send to Neo
+//  def resolveSubGraph(mavenEntry: MavenEntry): DependencyGraph = ??? //TODO: Call resolver
+//
+//  def sendGraphToNeo(graph: RDD[DependencyGraph]): Unit = ??? //TODO: Send to Neo
 }

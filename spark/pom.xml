@@ -34,10 +34,10 @@
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_2.10</artifactId>
         </dependency>
-		<dependency>
+		<!-- dependency>
 			<groupId>nl.ordina.j-technologies.bigdata.maven.dependency-graph</groupId>
 			<artifactId>model</artifactId>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>nl.ordina.j-technologies.bigdata.maven.dependency-graph</groupId>
 			<artifactId>indexer</artifactId>
