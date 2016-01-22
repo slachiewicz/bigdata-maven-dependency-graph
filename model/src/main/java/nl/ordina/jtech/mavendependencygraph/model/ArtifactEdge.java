@@ -1,10 +1,8 @@
 package nl.ordina.jtech.mavendependencygraph.model;
 
-/**
- * Class: ArtifactEdge
- */
-public class ArtifactEdge implements GSonConverter {
+import java.io.Serializable;
 
+public class ArtifactEdge implements Serializable {
     private final int source;
     private final int destination;
     private RelationType relationType;

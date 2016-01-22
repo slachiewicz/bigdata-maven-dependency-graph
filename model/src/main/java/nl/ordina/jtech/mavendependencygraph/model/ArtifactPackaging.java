@@ -1,9 +1,6 @@
 package nl.ordina.jtech.mavendependencygraph.model;
 
-/**
- * Class: ArtifactType
- */
-public enum ArtifactType {
+public enum ArtifactPackaging {
     Jar,
     War,
     Ear,

@@ -1,24 +1,21 @@
 package nl.ordina.jtech.mavendependencygraph.model;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Set;
+import java.io.Serializable;
 
-/**
- * Class: ArtifactVertex
- */
-public class ArtifactVertex  {
+public class ArtifactVertex implements Serializable {
     private final int id;
     private final String groupId;
     private final String artifactId;
     private String version;
-    private ArtifactType type;
+    private String classifier;
+    private ArtifactPackaging type;
 
-    public ArtifactVertex(final String groupId, final String artifactId, final ArtifactType type, final String version) {
+    public ArtifactVertex(final String groupId, final String artifactId, final ArtifactPackaging type, final String version, String classifier) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
         this.type = type;
+        this.classifier = classifier;
         this.id = hashCode();
     }
 
@@ -26,15 +23,24 @@ public class ArtifactVertex  {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         ArtifactVertex that = (ArtifactVertex) o;
-        return Objects.equals(groupId, that.groupId) &&
-                Objects.equals(artifactId, that.artifactId) &&
-                Objects.equals(version, that.version) &&
-                type == that.type;
+
+        if (!groupId.equals(that.groupId)) return false;
+        if (!artifactId.equals(that.artifactId)) return false;
+        if (!version.equals(that.version)) return false;
+        if (classifier != null ? !classifier.equals(that.classifier) : that.classifier != null) return false;
+        return type == that.type;
+
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(groupId, artifactId, version, type);
+        int result = groupId.hashCode();
+        result = 31 * result + artifactId.hashCode();
+        result = 31 * result + version.hashCode();
+        result = 31 * result + (classifier != null ? classifier.hashCode() : 0);
+        result = 31 * result + type.hashCode();
+        return result;
     }
 }

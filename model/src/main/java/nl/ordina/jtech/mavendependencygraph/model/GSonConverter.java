@@ -2,10 +2,9 @@ package nl.ordina.jtech.mavendependencygraph.model;
 
 import com.google.gson.Gson;
 
-/**
- * Class: GSonConverter
- */
-interface GSonConverter {
+import java.io.Serializable;
+
+interface GSonConverter extends Serializable{
     Gson gson = new Gson();
 
     default String toJson() {

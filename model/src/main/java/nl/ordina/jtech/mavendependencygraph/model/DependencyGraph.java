@@ -1,15 +1,12 @@
 package nl.ordina.jtech.mavendependencygraph.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/**
- * Class: DependencyGraph
- */
-public class DependencyGraph implements GSonConverter {
-
+public class DependencyGraph implements GSonConverter, Serializable {
     private Set<ArtifactVertex> vertices = new HashSet<>();
     private List<ArtifactEdge> edges = new ArrayList<>();
 
