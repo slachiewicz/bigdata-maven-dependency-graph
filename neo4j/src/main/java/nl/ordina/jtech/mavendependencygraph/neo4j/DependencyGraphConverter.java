@@ -7,9 +7,6 @@ import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
  */
 public class DependencyGraphConverter {
 
-    public static inCypher(final DependencyGraph graph) {
-
-    }
 
     /*
 merge (n: MavenEntry {
