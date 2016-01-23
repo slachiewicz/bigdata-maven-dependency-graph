@@ -24,9 +24,10 @@ public class ArtifactVertexTest {
         ArtifactVertex javaxMail = new ArtifactVertex("com.sun.mail", "javax.mail", ArtifactPackaging.Jar, "1.5.0");//:provided
         ArtifactVertex activation = new ArtifactVertex("javax.activation", "activation", ArtifactPackaging.Jar, "1.1");//:provided
 
+
         DependencyGraph dependencyGraph = new DependencyGraph();
         dependencyGraph.addDependency(javaeeApi, javaxMail, Scope.Provided);
-        dependencyGraph.addDependency(javaxMail, activation, Scope.Compile);
+        dependencyGraph.addDependency(javaxMail, activation, Scope.Provided);
 
         System.out.println("dependencyGraph.toJson() = " + dependencyGraph.toJson());
 

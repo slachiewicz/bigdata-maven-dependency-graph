@@ -8,24 +8,56 @@ public class ArtifactVertex implements Serializable {
     private final String artifactId;
     private String version;
     private String classifier;
-    private ArtifactPackaging type;
+    private ArtifactPackaging packaging;
 
-    public ArtifactVertex(final String groupId, final String artifactId, final ArtifactPackaging type, final String version, String classifier) {
+    public ArtifactVertex(final String groupId, final String artifactId, final ArtifactPackaging packaging, final String version, String classifier) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
-        this.type = type;
+        this.packaging = packaging;
         this.classifier = classifier;
         this.id = hashCode();
     }
 
-    public ArtifactVertex(final String groupId, final String artifactId, final ArtifactPackaging type, final String version) {
+    public ArtifactVertex(final String groupId, final String artifactId, final ArtifactPackaging packaging, final String version) {
         this.groupId = groupId;
         this.artifactId = artifactId;
         this.version = version;
-        this.type = type;
-        this.classifier = null;
+        this.packaging = packaging;
+        this.classifier = "";
         this.id = hashCode();
+    }
+
+    public String gav() {
+        return gav(":");
+    }
+
+    public String gav(final String sep) {
+        return (groupId + sep + artifactId + sep + packaging + sep + (classifier != null ? classifier + sep : "") + version).replaceAll("[-.]", sep);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getGroupId() {
+        return groupId;
+    }
+
+    public String getArtifactId() {
+        return artifactId;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public String getClassifier() {
+        return classifier;
+    }
+
+    public ArtifactPackaging getPackaging() {
+        return packaging;
     }
 
     @Override
@@ -39,7 +71,7 @@ public class ArtifactVertex implements Serializable {
         if (!artifactId.equals(that.artifactId)) return false;
         if (!version.equals(that.version)) return false;
         if (classifier != null ? !classifier.equals(that.classifier) : that.classifier != null) return false;
-        return type == that.type;
+        return packaging == that.packaging;
 
     }
 
@@ -49,7 +81,7 @@ public class ArtifactVertex implements Serializable {
         result = 31 * result + artifactId.hashCode();
         result = 31 * result + version.hashCode();
         result = 31 * result + (classifier != null ? classifier.hashCode() : 0);
-        result = 31 * result + type.hashCode();
+        result = 31 * result + packaging.hashCode();
         return result;
     }
 }

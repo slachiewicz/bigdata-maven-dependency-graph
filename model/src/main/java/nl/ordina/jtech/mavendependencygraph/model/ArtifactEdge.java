@@ -12,4 +12,16 @@ public class ArtifactEdge implements Serializable {
         this.destination = destination.hashCode();
         this.scope = scope;
     }
+
+    public int getSource() {
+        return source;
+    }
+
+    public int getDestination() {
+        return destination;
+    }
+
+    public Scope getScope() {
+        return scope;
+    }
 }

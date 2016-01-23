@@ -15,4 +15,13 @@ public class DependencyGraph implements GSonConverter, Serializable {
         vertices.add(from);
         vertices.add(dest);
     }
+
+    public Set<ArtifactVertex> getVertices() {
+        return vertices;
+    }
+
+    public List<ArtifactEdge> getEdges() {
+        return edges;
+    }
+
 }
