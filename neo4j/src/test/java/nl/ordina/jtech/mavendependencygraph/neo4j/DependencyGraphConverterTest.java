@@ -12,6 +12,5 @@ public class DependencyGraphConverterTest {
     public void testConvert() throws Exception {
         String s = DependencyGraphConverter.inCypher(GraphCreator.getGraph());
         System.out.println("s = " + s);
-
     }
 }
