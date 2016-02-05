@@ -10,6 +10,7 @@ import org.neo4j.test.server.HTTP;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Class: GraphUploaderTest
@@ -47,9 +48,8 @@ public class GraphUploaderTest {
                 }
             } while (!consumed);
 
-
             Result result = server.graph().execute("MATCH (n) return n");
-            assertThat(result.resultAsString().length(), is(763));
+            assertTrue(result.resultAsString(),result.resultAsString().contains("javaee-api"));
         }
     }
 }

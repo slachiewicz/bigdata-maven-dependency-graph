@@ -55,7 +55,6 @@ public class GraphUploader {
                 transaction.success();
                 executeCount++;
             }
-            return "Ok";
         });
 
         return Response.ok().entity("Submitted").build();
