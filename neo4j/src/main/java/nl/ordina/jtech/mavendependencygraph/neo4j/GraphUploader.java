@@ -1,10 +1,12 @@
 package nl.ordina.jtech.mavendependencygraph.neo4j;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
+import com.google.gson.Gson;
+import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 
-import javax.jms.*;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -12,6 +14,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -19,61 +26,39 @@ import java.util.concurrent.TimeoutException;
  */
 @Path("/dependency")
 public class GraphUploader {
-    private static final String QUEUE_NAME = "DependencyGraphQueue";
-    public static final String BROKER_URL = "vm://localhost";
+    private static final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(1000);
+    private static final ExecutorService executorService = new ThreadPoolExecutor(1, 1, 1, TimeUnit.HOURS, queue);
+    private static final Gson GSON = new Gson();
+    private static int executeCount = 0;
     private final GraphDatabaseService database;
-    private Session session;
-    private MessageProducer producer;
-    private final GrapQueueConsumer queueConsumer;
 
     public GraphUploader(@Context GraphDatabaseService database) throws IOException, TimeoutException {
         this.database = database;
-        queueConsumer = new GrapQueueConsumer(database);
-        initializeQueue();
     }
 
-    private void initializeQueue() throws IOException, TimeoutException {
-        try {
-            // Create a ConnectionFactory
-            ActiveMQConnectionFactory connectionFactory = new ActiveMQConnectionFactory(BROKER_URL);
-
-            // Create a Connection
-            Connection connection = connectionFactory.createConnection();
-            connection.start();
-
-            // Create a Session
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
-            // Create the destination (Topic or Queue)
-            Destination destination = session.createQueue(QUEUE_NAME);
-
-            // Create a MessageProducer from the Session to the Topic or Queue
-            producer = session.createProducer(destination);
-            producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
-
-            MessageConsumer consumer = session.createConsumer(destination);
-            consumer.setMessageListener(queueConsumer);
-
-
-        }
-        catch (Exception e) {
-            System.out.println("Caught: " + e);
-            e.printStackTrace();
-        }
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public String status() {
+        return UploaderStatus.build(executeCount, (ThreadPoolExecutor) executorService).toJson();
     }
+
 
     @POST
-    @Produces(MediaType.TEXT_PLAIN)
-    @Consumes(MediaType.TEXT_PLAIN)
     @Path("/graph")
-    public Response uploadSubGraph(final String graphJson) throws IOException, JMSException {
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
+    public Response uploadSubGraph(final String graphJson) throws IOException, InterruptedException {
+        executorService.submit(() -> {
+            final DependencyGraph graph = GSON.fromJson(graphJson, DependencyGraph.class);
+            try (final Transaction transaction = database.beginTx()) {
+                database.execute(DependencyGraphConverter.inCypher(graph));
+                transaction.success();
+                executeCount++;
+            }
+            return "Ok";
+        });
 
-        TextMessage message = session.createTextMessage(graphJson);
+        return Response.ok().entity("Submitted").build();
 
-        // Tell the producer to send the message
-        producer.send(message);
-
-        // Do stuff with the database
-        return Response.ok().build();
     }
 }

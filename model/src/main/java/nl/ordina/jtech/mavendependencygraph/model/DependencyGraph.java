@@ -10,9 +10,18 @@ public class DependencyGraph implements GSonConverter, Serializable {
     private Set<ArtifactVertex> vertices = new HashSet<>();
     private List<ArtifactEdge> edges = new ArrayList<>();
 
-    public void addDependency(final ArtifactVertex from, final ArtifactVertex dest, final RelationType type) {
+    public void addDependency(final ArtifactVertex from, final ArtifactVertex dest, final Scope type) {
         edges.add(new ArtifactEdge(from, dest, type));
         vertices.add(from);
         vertices.add(dest);
     }
+
+    public Set<ArtifactVertex> getVertices() {
+        return vertices;
+    }
+
+    public List<ArtifactEdge> getEdges() {
+        return edges;
+    }
+
 }
