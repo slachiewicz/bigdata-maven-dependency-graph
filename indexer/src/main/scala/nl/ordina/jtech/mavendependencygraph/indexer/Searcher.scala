@@ -79,17 +79,17 @@ class Searcher(indexLocation: String) {
 
   def search(field: Field, expr: String) : Set[ArtifactInfo] = {
     val bq = new BooleanQuery
-    bq.add(constructPackgingQuery(Seq("jar", "war", "ear")), Occur.MUST)
+    bq.add(constructBooleanOrQuery(MAVEN.PACKAGING, Seq("jar", "war", "ear")), Occur.MUST)
     bq.add(indexer.constructQuery(field, new SourcedSearchExpression(expr)), Occur.MUST)
     
     val response = indexer.searchFlat(new FlatSearchRequest(bq, centralContext))
     response.getResults
   }
 
-  def constructPackgingQuery(packageTypes: Seq[String]) : BooleanQuery = {
+  def constructBooleanOrQuery(field: Field, packageTypes: Seq[String]) : BooleanQuery = {
     val packagingQuery = new BooleanQuery
     for (pt <- packageTypes) {
-      packagingQuery.add(indexer.constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression(pt)), Occur.SHOULD)
+      packagingQuery.add(indexer.constructQuery(field, new SourcedSearchExpression(pt)), Occur.SHOULD)
     }
     packagingQuery
   }
