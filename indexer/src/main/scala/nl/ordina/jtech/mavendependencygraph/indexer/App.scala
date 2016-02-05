@@ -7,6 +7,7 @@ import scala.collection.JavaConversions.asScalaSet
 import org.apache.maven.index.ArtifactInfo
 import org.apache.maven.index.MAVEN
 import java.io.PrintWriter
+import scala.annotation.tailrec
 
 case class Config(indexLocation: File = new File("."), port: Int = 0)
 
@@ -54,6 +55,7 @@ class App(config: Config) {
     
   }
   
+  @tailrec
   def processArtifacts(searcher: Searcher, out: PrintWriter, chars: Iterable[Char], acc: Int): Int = {
     if (chars.isEmpty) return acc
 
