@@ -11,6 +11,7 @@ import org.apache.maven.index.ArtifactInfo
 import org.apache.maven.index.Field
 import org.apache.maven.index.FlatSearchRequest
 import org.apache.maven.index.Indexer
+import org.apache.maven.index.MAVEN
 import org.apache.maven.index.context.IndexCreator
 import org.apache.maven.index.expr.SourcedSearchExpression
 import org.apache.maven.index.updater.IndexUpdateRequest
@@ -77,10 +78,19 @@ class Searcher(indexLocation: String) {
   }
 
   def search(field: Field, expr: String) : Set[ArtifactInfo] = {
-    val bq = new BooleanQuery()
+    val bq = new BooleanQuery
+    bq.add(constructPackgingQuery(Seq("jar", "war", "ear")), Occur.MUST)
     bq.add(indexer.constructQuery(field, new SourcedSearchExpression(expr)), Occur.MUST)
+    
     val response = indexer.searchFlat(new FlatSearchRequest(bq, centralContext))
-    response.getResults()
+    response.getResults
   }
 
+  def constructPackgingQuery(packageTypes: Seq[String]) : BooleanQuery = {
+    val packagingQuery = new BooleanQuery
+    for (pt <- packageTypes) {
+      packagingQuery.add(indexer.constructQuery(MAVEN.PACKAGING, new SourcedSearchExpression(pt)), Occur.SHOULD)
+    }
+    packagingQuery
+  }
 }
