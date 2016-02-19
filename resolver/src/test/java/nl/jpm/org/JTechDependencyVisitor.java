@@ -58,7 +58,7 @@ public class JTechDependencyVisitor implements DependencyVisitor
 		// get the nodes on the second level (the direct dependencies), and add these with the first node to the graph
 		else if(currentIndentation==2)
 		{
-			ArtifactVertex secondLevelArtifactVertes = getArtifactVertexFromArtifactCoordinate(node.getDependency().toString());
+			ArtifactVertex secondLevelArtifactVerteX = getArtifactVertexFromArtifactCoordinate(node.getDependency().toString());
 		}
 		
 		if (currentIndent.length() <= 0)
@@ -73,7 +73,7 @@ public class JTechDependencyVisitor implements DependencyVisitor
 		return true;
 	}
 
-	// 
+	// Ugly; have to derive things from the artifact coordinate string
 	private ArtifactVertex getArtifactVertexFromArtifactCoordinate(String artifactCoordinate)
 	{
 		String[] split = artifactCoordinate.split(":");
