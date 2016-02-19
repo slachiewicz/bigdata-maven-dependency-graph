@@ -37,6 +37,22 @@
     </properties>
 
     <dependencies>
+		<dependency>
+			<groupId>com.jcabi</groupId>
+			<artifactId>jcabi-aether</artifactId>
+			<version>0.7.19</version>
+		</dependency>    
+    	<dependency>
+			<groupId>org.apache.maven</groupId>
+			<artifactId>maven-core</artifactId>
+			<version>3.0.3</version>
+		</dependency>
+		<dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>3.1.2.RELEASE</version>
+        </dependency>
+    
         <dependency>
             <groupId>org.sonatype.aether</groupId>
             <artifactId>aether-api</artifactId>
