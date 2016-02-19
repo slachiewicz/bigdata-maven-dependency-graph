@@ -56,7 +56,7 @@ class App(config: Config) {
   }
   
   @tailrec
-  def processArtifacts(searcher: Searcher, out: PrintWriter, chars: Iterable[Char], acc: Int): Int = {
+  private def processArtifacts(searcher: Searcher, out: PrintWriter, chars: Iterable[Char], acc: Int): Int = {
     if (chars.isEmpty) return acc
 
     // search for artifacts
