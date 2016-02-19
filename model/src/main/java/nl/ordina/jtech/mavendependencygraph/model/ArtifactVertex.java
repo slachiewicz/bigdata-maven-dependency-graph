@@ -84,4 +84,13 @@ public class ArtifactVertex implements Serializable {
         result = 31 * result + packaging.hashCode();
         return result;
     }
+    
+	@Override
+	public String toString()
+	{
+		return "ArtifactVertex [id='" + id + "', groupId='" + groupId + "', artifactId='" + artifactId + "', version='" + version + "', classifier='" + classifier + "', packaging='"
+		        + packaging + "']";
+	}
+    
+    
 }
