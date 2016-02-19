@@ -37,10 +37,12 @@ import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
 import org.sonatype.aether.util.filter.DependencyFilterUtils;
 
+import nl.jpm.org.JTechDependencyVisitor;
 import nl.ordina.jtech.maven.analyzer.aether.Booter;
 import nl.ordina.jtech.maven.analyzer.aether.ConsoleDependencyGraphDumper;
 import nl.ordina.jtech.maven.analyzer.aether.FlatDependencyGraphDumper;
 import nl.ordina.jtech.maven.analyzer.aether.TransitiveDependencyGraphDumper;
+import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
 
 //import org.sonatype.aether.artifact.DefaultArtifact;
 
@@ -208,13 +210,21 @@ public class ResolveArtifact {
 
         CollectResult collectResult = system.collectDependencies(session, collectRequest);
 
-        System.out.println("Graph");
-        collectResult.getRoot().accept(new ConsoleDependencyGraphDumper());
-        System.out.println("Transitive");
-        TransitiveDependencyGraphDumper transitiveDependencyGraphDumper = new TransitiveDependencyGraphDumper();
-        collectResult.getRoot().accept(transitiveDependencyGraphDumper);
+//        System.out.println("Graph");
+//        collectResult.getRoot().accept(new ConsoleDependencyGraphDumper());
+//        System.out.println("Transitive");
+//        TransitiveDependencyGraphDumper transitiveDependencyGraphDumper = new TransitiveDependencyGraphDumper();
+//        collectResult.getRoot().accept(transitiveDependencyGraphDumper);
+//        System.out.println("Flat");
+//        collectResult.getRoot().accept(new FlatDependencyGraphDumper());
+        
         System.out.println("Flat");
-        collectResult.getRoot().accept(new FlatDependencyGraphDumper());
+        JTechDependencyVisitor jTechVisitor = new JTechDependencyVisitor();
+        DependencyGraph localDependencies = new DependencyGraph();
+		jTechVisitor.setLocalDependencies(localDependencies);
+		collectResult.getRoot().accept(jTechVisitor);
+        
+        
 	    
     }
     

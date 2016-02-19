@@ -37,6 +37,15 @@ public class ModelConverter
 	}
 	
 	
+	public static ArtifactEdge createDependencyInformation()
+	{
+		
+		
+		
+		return null;
+	}
+	
+	
 	
 	public static void main(String[] args) throws DependencyCollectionException, DependencyResolutionException
 	{

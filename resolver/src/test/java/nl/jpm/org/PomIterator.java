@@ -85,7 +85,7 @@ public class PomIterator
 				
 				// Converteer artifact-model 
 				ArtifactVertex convertedArtifact = ModelConverter.convertArtifact(art);
-				System.out.println(" ---> " + convertedArtifact.toString());
+//				System.out.println(" ---> " + convertedArtifact.toString());
 				
 				
 				try
@@ -94,7 +94,7 @@ public class PomIterator
 //	                ResolveArtifact.juanTest2(artifactCoordinate);
 					
 					// resolving artifact
-					if(false)
+//					if(false)
 						ResolveArtifact.original2(artifactCoordinate);
                 }
                 catch (DependencyCollectionException e)
