@@ -5,9 +5,11 @@ import java.io.PrintStream;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.graph.DependencyVisitor;
 
+import nl.ordina.jtech.mavendependencygraph.model.ArtifactEdge;
 import nl.ordina.jtech.mavendependencygraph.model.ArtifactPackaging;
 import nl.ordina.jtech.mavendependencygraph.model.ArtifactVertex;
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
+import nl.ordina.jtech.mavendependencygraph.model.Scope;
 
 
 //import org.sonatype.aether.impl.internal.GraphEdge;
@@ -59,6 +61,19 @@ public class JTechDependencyVisitor implements DependencyVisitor
 		else if(currentIndentation==2)
 		{
 			ArtifactVertex secondLevelArtifactVerteX = getArtifactVertexFromArtifactCoordinate(node.getDependency().toString());
+			
+			// TODO define scope for artifact
+			Scope scope = Scope.Compile;
+			
+			System.out.println("   ----> Source artifact vertex and destination artifact vertex being added...");
+			System.out.println("   ----> Adding dependency nr. " + (localDependencies.getEdges().size()+1));
+//			ArtifactEdge artifactEdge = new ArtifactEdge(firstLevelArtifactVertex, secondLevelArtifactVerteX, scope);
+			localDependencies.addDependency(firstLevelArtifactVertex, secondLevelArtifactVerteX, scope);
+		}
+		else
+		{
+			System.out.println("   ----> Artifact vertex NOT being added...");
+
 		}
 		
 		if (currentIndent.length() <= 0)
@@ -106,7 +121,6 @@ public class JTechDependencyVisitor implements DependencyVisitor
 			case "ear": packaging = ArtifactPackaging.Ear;
 						break;
 		}
-		
 		
 		return packaging;
 	}
