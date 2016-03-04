@@ -42,6 +42,11 @@ public class JTechDependencyVisitor implements DependencyVisitor
 		this(null);
 	}
 
+	public JTechDependencyVisitor(Object object)
+	{
+		// TODO Auto-generated constructor stub
+	}
+
 	public JTechDependencyVisitor(PrintStream out)
 	{
 		this.out = (out != null) ? out : System.out;
