@@ -136,6 +136,57 @@ public class ArtifactResolver {
     } 
     
     
+    
+    public DependencyGraph resolveToDependencyGraph(Artifact artifact) throws DependencyCollectionException {
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Resolving: " + artifact);
+        }
+
+        CollectRequest collectRequest = new CollectRequest();
+        collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE));
+        collectRequest.addRepository(repo);
+
+        CollectResult collectResult = system.collectDependencies(session, collectRequest);
+
+//        FlatDependencyGraphDumper flat = new FlatDependencyGraphDumper();
+//        collectResult.getRoot().accept(flat);
+//
+        List<DependencyResultRecord> nodes = new ArrayList<DependencyResultRecord>();
+//        nodes.addAll(flat.getNodes());
+
+        TransitiveDependencyGraphDumper transitive = new TransitiveDependencyGraphDumper();
+        collectResult.getRoot().accept(transitive);
+        nodes.addAll(transitive.getNodes());
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Result " + nodes.size() + " depending artifacts.");
+        }
+
+        System.out.println("Flat");
+        JTechDependencyVisitor jTechVisitor = new JTechDependencyVisitor();
+        DependencyGraph localDependencies = new DependencyGraph();
+		jTechVisitor.setLocalDependencies(localDependencies);
+		collectResult.getRoot().accept(jTechVisitor);
+        
+		List<ArtifactEdge> edges = jTechVisitor.getLocalDependencies().getEdges();
+		
+		// TODO ? Convert back to Artifacts or a derivate from that, or return ArtifactEdges
+		for (Iterator iterator = edges.iterator(); iterator.hasNext();)
+		{
+			ArtifactEdge artifactEdge = (ArtifactEdge) iterator.next();
+//			DefaultArtifact source = new DefaultArtifact(groupId, artifactId, extension, version);;
+//			DefaultArtifact destination = new DefaultArtifact(groupId, artifactId, extension, version);
+//			DependencyResultRecord dependencyResultRecord = new DependencyResultRecord(source, destination, "Compile");
+		}
+		
+		System.out.println("" + edges.size());
+		
+        return jTechVisitor.getLocalDependencies();
+    }     
+    
+    
+    
     public static void main(String[] args)
 	{
     	ArtifactResolver artifactResolver = new ArtifactResolver();
