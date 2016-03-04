@@ -42,6 +42,11 @@ public class JTechDependencyVisitor implements DependencyVisitor
 		this(null);
 	}
 
+	public JTechDependencyVisitor(Object object)
+	{
+		// TODO Auto-generated constructor stub
+	}
+
 	public JTechDependencyVisitor(PrintStream out)
 	{
 		this.out = (out != null) ? out : System.out;
@@ -68,6 +73,9 @@ public class JTechDependencyVisitor implements DependencyVisitor
 			System.out.println("   ----> Source artifact vertex and destination artifact vertex being added...");
 			System.out.println("   ----> Adding dependency nr. " + (localDependencies.getEdges().size()+1));
 //			ArtifactEdge artifactEdge = new ArtifactEdge(firstLevelArtifactVertex, secondLevelArtifactVerteX, scope);
+			
+			scope = deriveScope(secondLevelArtifactVerteX);
+			
 			localDependencies.addDependency(firstLevelArtifactVertex, secondLevelArtifactVerteX, scope);
 		}
 		else
@@ -86,6 +94,35 @@ public class JTechDependencyVisitor implements DependencyVisitor
 		}
 //		out.println("" + currentIndentation);
 		return true;
+	}
+
+	private Scope deriveScope(ArtifactVertex secondLevelArtifactVerteX)
+	{
+		// TODO Auto-generated method stub
+		String  version = secondLevelArtifactVerteX.getVersion();
+		String[] split = version.split("\\s");
+		String scopeInText = split[1];
+		scopeInText = scopeInText.replace("\\s", "");
+		
+		Scope scope = null;
+		
+//		switch(pPackaging)
+//		{
+//			case "jar": packaging = ArtifactPackaging.Jar;
+//						break;
+//			case "war": packaging = ArtifactPackaging.War;
+//						break;
+//			case "pom": packaging = ArtifactPackaging.Pom;
+//						break;
+//			case "ear": packaging = ArtifactPackaging.Ear;
+//						break;
+//		}
+		
+//		return packaging;
+		
+		
+		System.out.println("version: " + version);
+		return null;
 	}
 
 	// Ugly; have to derive things from the artifact coordinate string
