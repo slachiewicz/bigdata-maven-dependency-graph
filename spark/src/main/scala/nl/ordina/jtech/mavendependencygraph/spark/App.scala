@@ -1,6 +1,8 @@
 package nl.ordina.jtech.mavendependencygraph.spark
 
+import nl.ordina.jtech.maven.analyzer.aether.ArtifactResolver
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph
+import org.sonatype.aether.util.artifact.DefaultArtifact
 import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.{StreamingContext, Seconds}
@@ -24,7 +26,11 @@ object App {
     ssc.stop()
   }
 
-  def resolveSubGraph(mavenEntry: MavenEntry): DependencyGraph = ??? //TODO: Call resolver
+  def resolveSubGraph(mavenEntry: MavenEntry): DependencyGraph = {
+    val resolver : ArtifactResolver = new ArtifactResolver()
+    val artifactCoordinate = mavenEntry.groupId + ":" + mavenEntry.artifactId + ":" + mavenEntry.version
+    resolver.resolveToDependencyGraph(new DefaultArtifact(artifactCoordinate))
+  }
 
   def sendGraphToNeo(graphs: RDD[DependencyGraph], url: String): Unit = {
     graphs.foreach(graph => {

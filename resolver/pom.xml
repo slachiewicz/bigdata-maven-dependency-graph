@@ -37,6 +37,12 @@
     </properties>
 
     <dependencies>
+
+        <dependency>
+            <groupId>nl.ordina.j-technologies.bigdata.maven.dependency-graph</groupId>
+            <artifactId>model</artifactId>
+        </dependency>
+
 		<dependency>
 			<groupId>com.jcabi</groupId>
 			<artifactId>jcabi-aether</artifactId>

@@ -8,7 +8,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-import nl.ordina.jtech.maven.analyzer.aether.ResolveArtifact;
+import nl.ordina.jtech.maven.analyzer.aether.ArtifactResolver;
+import nl.ordina.jtech.mavendependencygraph.model.ArtifactEdge;
 import nl.ordina.jtech.mavendependencygraph.model.ArtifactVertex;
 
 import org.apache.maven.artifact.repository.ArtifactRepository;
@@ -95,7 +96,12 @@ public class PomIterator
 					
 					// resolving artifact
 //					if(false)
-						ResolveArtifact.original2(artifactCoordinate);
+					// GN: Doet dit wel iets???
+					// Coce compileerde niet, dus maar even compileerbaar gemaakt
+						// nl.ordina.jtech.maven.analyzer.aether.ResolveArtifact.original2(artifactCoordinate);
+					ArtifactResolver artifactResolver = new ArtifactResolver();
+					DefaultArtifact artifact = new DefaultArtifact(artifactCoordinate);
+					artifactResolver.resolveToEdges(artifact);
                 }
                 catch (DependencyCollectionException e)
                 {

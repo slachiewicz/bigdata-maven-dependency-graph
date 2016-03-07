@@ -38,7 +38,10 @@
             <groupId>nl.ordina.j-technologies.bigdata.maven.dependency-graph</groupId>
             <artifactId>indexer</artifactId>
         </dependency>
-
+		<dependency>
+			<groupId>nl.ordina.j-technologies.bigdata.maven.dependency-graph</groupId>
+			<artifactId>resolver</artifactId>
+		</dependency>
         <!--EXTERNAL-->
 		<dependency>
 			<groupId>org.apache.spark</groupId>
@@ -83,6 +86,27 @@
 						<phase>process-test-resources</phase>
 						<goals>
 							<goal>testCompile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.6</version>
+				<configuration>
+					<descriptor>src/assembly/dep.xml</descriptor>
+					<archive>
+						<manifest>
+							<mainClass>nl.ordina.jtech.mavendependencygraph.spark.App</mainClass>
+						</manifest>
+					</archive>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
 						</goals>
 					</execution>
 				</executions>

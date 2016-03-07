@@ -5,7 +5,6 @@ import org.sonatype.aether.collection.DependencyCollectionException;
 import org.sonatype.aether.resolution.DependencyResolutionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
-import nl.ordina.jtech.maven.analyzer.aether.ResolveArtifact;
 import nl.ordina.jtech.mavendependencygraph.model.*;
 
 
