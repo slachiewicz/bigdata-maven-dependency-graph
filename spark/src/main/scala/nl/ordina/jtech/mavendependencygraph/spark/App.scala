@@ -2,23 +2,27 @@ package nl.ordina.jtech.mavendependencygraph.spark
 
 import nl.ordina.jtech.maven.analyzer.aether.ArtifactResolver
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph
-import org.sonatype.aether.util.artifact.DefaultArtifact
-import org.apache.spark.SparkConf
 import org.apache.spark.rdd.RDD
-import org.apache.spark.streaming.{StreamingContext, Seconds}
+import org.apache.spark.streaming.{Seconds, StreamingContext}
+import org.apache.spark.{Logging, SparkConf}
+import org.sonatype.aether.util.artifact.DefaultArtifact
 
-import scalaj.http.Http
+import scalaj.http.{Http, HttpResponse}
 
-object App {
+object App extends Logging {
 
   def main(args: Array[String]): Unit = {
     val (host, port, url) = parseInputArgs(args)
-    val conf = new SparkConf().setMaster("local").setAppName("maven-streaming")
+    val conf = new SparkConf().setMaster("spark://jtechbd-spark-m:7077").setAppName("maven-streaming")
     val ssc = new StreamingContext(conf, Seconds(30))
 
     val dstream = ssc.socketTextStream(host, port)
-    dstream.map(record => MavenEntry(record))
-      .map(resolveSubGraph)
+    dstream.map { record =>
+      logInfo("Record: " + record)
+      MavenEntry(record)
+    }.map(resolveSubGraph)
+      .filter(_.isDefined)
+      .map(_.get)
       .foreachRDD(graphRDD => sendGraphToNeo(graphRDD, url))
 
     ssc.start()
@@ -26,15 +30,23 @@ object App {
     ssc.stop()
   }
 
-  def resolveSubGraph(mavenEntry: MavenEntry): DependencyGraph = {
-    val resolver : ArtifactResolver = new ArtifactResolver()
+  def resolveSubGraph(mavenEntry: MavenEntry): Option[DependencyGraph] = {
+    val resolver: ArtifactResolver = new ArtifactResolver()
     val artifactCoordinate = mavenEntry.groupId + ":" + mavenEntry.artifactId + ":" + mavenEntry.version
-    resolver.resolveToDependencyGraph(new DefaultArtifact(artifactCoordinate))
+    logInfo("ArtificactCoordinate: " + artifactCoordinate)
+    val dependencyGraph = resolver.resolveToDependencyGraph(new DefaultArtifact(artifactCoordinate))
+    dependencyGraph match {
+      case null => None
+      case _ => Some(dependencyGraph)
+    }
   }
 
   def sendGraphToNeo(graphs: RDD[DependencyGraph], url: String): Unit = {
     graphs.foreach(graph => {
-      Http(url).postData(graph.toJson).asString
+      val json: String = graph.toJson
+      logInfo("json: " + json)
+      val response: HttpResponse[String] = Http(url).header("content-type", "application/json").postData(json).asString
+      logInfo("Response: " + response.code)
     })
   }
 
