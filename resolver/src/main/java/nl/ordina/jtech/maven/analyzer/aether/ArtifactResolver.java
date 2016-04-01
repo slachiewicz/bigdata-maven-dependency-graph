@@ -16,8 +16,6 @@
 
 package nl.ordina.jtech.maven.analyzer.aether;
 
-import nl.jpm.org.JTechDependencyVisitor;
-import nl.ordina.jtech.mavendependencygraph.model.ArtifactEdge;
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,9 +30,6 @@ import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
 import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Resolver for artifacts
@@ -60,30 +55,15 @@ public class ArtifactResolver {
         }
 
         CollectRequest collectRequest = new CollectRequest();
-        collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE));
+        collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE)); //FIXME: Scope shouldn't matter
         collectRequest.addRepository(repo);
 
         CollectResult collectResult = system.collectDependencies(session, collectRequest);
 
-        List<DependencyResultRecord> nodes = new ArrayList<DependencyResultRecord>();
-
-        TransitiveDependencyGraphDumper transitive = new TransitiveDependencyGraphDumper();
-        collectResult.getRoot().accept(transitive);
-        nodes.addAll(transitive.getNodes());
-
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Result " + nodes.size() + " depending artifacts.");
-        }
-
-        System.out.println("Flat");
         JTechDependencyVisitor jTechVisitor = new JTechDependencyVisitor();
         DependencyGraph localDependencies = new DependencyGraph();
         jTechVisitor.setLocalDependencies(localDependencies);
         collectResult.getRoot().accept(jTechVisitor);
-
-        List<ArtifactEdge> edges = jTechVisitor.getLocalDependencies().getEdges();
-
-        System.out.println("" + edges.size());
 
         return jTechVisitor.getLocalDependencies();
     }
@@ -95,10 +75,10 @@ public class ArtifactResolver {
             DefaultArtifact artifact = new DefaultArtifact(artifactCoordinate);
             DependencyGraph dependencyGraph = artifactResolver.resolveToDependencyGraph(artifact);
 
-            System.out.println("/===========================================\\");
-            System.out.println("Num: " + dependencyGraph.getEdges().size());
+            LOGGER.info("/===========================================\\");
+            LOGGER.info("Num: " + dependencyGraph.getEdges().size());
         } catch (DependencyCollectionException e) {
-            e.printStackTrace();
+            LOGGER.error("Exception leaked up till main: ",e);
         }
     }
 

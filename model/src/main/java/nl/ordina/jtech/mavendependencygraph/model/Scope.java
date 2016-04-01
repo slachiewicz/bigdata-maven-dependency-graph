@@ -6,5 +6,24 @@ public enum Scope {
     Runtime,
     Test,
     System,
-    Import
+    Import;
+
+    public static Scope parseFromString(String scope) {
+        switch (scope) {
+            case "compile":
+                return Scope.Compile;
+            case "provided":
+                return Scope.Provided;
+            case "import":
+                return Scope.Import;
+            case "runtime":
+                return Scope.Runtime;
+            case "system":
+                return Scope.System;
+            case "test":
+                return Scope.Test;
+            default:
+                return null;
+        }
+    }
 }
