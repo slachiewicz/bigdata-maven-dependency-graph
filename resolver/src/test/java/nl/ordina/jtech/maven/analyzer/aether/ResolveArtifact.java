@@ -21,8 +21,6 @@ import org.junit.Test;
 import org.sonatype.aether.collection.DependencyCollectionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 
-//import org.sonatype.aether.artifact.DefaultArtifact;
-
 /**
  * Resolves a single artifact.
  */

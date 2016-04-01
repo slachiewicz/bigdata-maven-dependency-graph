@@ -1,21 +1,23 @@
-package nl.jpm.org;
+package nl.ordina.jtech.maven.analyzer.aether;
 
 import nl.ordina.jtech.mavendependencygraph.model.ArtifactPackaging;
 import nl.ordina.jtech.mavendependencygraph.model.ArtifactVertex;
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
 import nl.ordina.jtech.mavendependencygraph.model.Scope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonatype.aether.artifact.Artifact;
 import org.sonatype.aether.graph.Dependency;
 import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.graph.DependencyVisitor;
 
 import java.io.PrintStream;
 
-
-//import org.sonatype.aether.impl.internal.GraphEdge;
-
 public class JTechDependencyVisitor implements DependencyVisitor {
 
     private PrintStream out;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(JTechDependencyVisitor.class);
 
     private String currentIndent = "";
     private int currentIndentation = 0;
@@ -52,15 +54,14 @@ public class JTechDependencyVisitor implements DependencyVisitor {
         else if (currentIndentation == 2) {
             ArtifactVertex secondLevelArtifactVerteX = getArtifactVertexFromArtifactCoordinate(node.getDependency());
 
-            System.out.println("   ----> Source artifact vertex and destination artifact vertex being added...");
-            System.out.println("   ----> Adding dependency nr. " + (localDependencies.getEdges().size() + 1));
-//			ArtifactEdge artifactEdge = new ArtifactEdge(firstLevelArtifactVertex, secondLevelArtifactVerteX, scope);
+            LOGGER.info("   ----> Source artifact vertex and destination artifact vertex being added...");
+            LOGGER.info("   ----> Adding dependency nr. " + (localDependencies.getEdges().size() + 1));
 
-            Scope scope = deriveScope(node.getDependency().getScope());
+            Scope scope = deriveScope(node.getDependency());
 
             localDependencies.addDependency(firstLevelArtifactVertex, secondLevelArtifactVerteX, scope);
         } else {
-            System.out.println("   ----> Artifact vertex NOT being added...");
+            LOGGER.info("   ----> Artifact vertex NOT being added...");
 
         }
 
@@ -72,72 +73,34 @@ public class JTechDependencyVisitor implements DependencyVisitor {
         return true;
     }
 
-    private Scope deriveScope(String s) {
-        Scope scope = null;
-
-        switch (s) {
-            case "compile":
-                scope = Scope.Compile;
-                break;
-            case "provided":
-                scope = Scope.Provided;
-                break;
-            case "import":
-                scope = Scope.Import;
-                break;
-            case "runtime":
-                scope = Scope.Runtime;
-                break;
-            case "system":
-                scope = Scope.System;
-                break;
-            case "test":
-                scope = Scope.Test;
-                break;
-        }
-
-        System.out.println("scope: " + scope);
-        return scope;
-    }
 
     // Ugly; have to derive things from the artifact coordinate string
     private ArtifactVertex getArtifactVertexFromArtifactCoordinate(Dependency dependency) {
         String groupId = dependency.getArtifact().getGroupId();
         String artifactId = dependency.getArtifact().getArtifactId();
         String version = dependency.getArtifact().getVersion();
-        ArtifactPackaging packaging = getPackaging(dependency.getArtifact().getExtension());
+        ArtifactPackaging packaging = derivePackaging(dependency.getArtifact());
         String classifier = dependency.getArtifact().getClassifier();
         ArtifactVertex artifactVertex = new ArtifactVertex(groupId, artifactId, packaging, version, classifier);
 
-        System.out.println(" from split -> " + artifactVertex.toString());
+        LOGGER.info(" from split -> " + artifactVertex.toString());
         return artifactVertex;
     }
 
-    private ArtifactPackaging getPackaging(String pPackaging) {
-        ArtifactPackaging packaging = null;
 
-        switch (pPackaging) {
-            case "jar":
-                packaging = ArtifactPackaging.Jar;
-                break;
-            case "war":
-                packaging = ArtifactPackaging.War;
-                break;
-            case "pom":
-                packaging = ArtifactPackaging.Pom;
-                break;
-            case "ear":
-                packaging = ArtifactPackaging.Ear;
-                break;
-        }
-
-        return packaging;
-    }
 
     public boolean visitLeave(DependencyNode node) {
         currentIndent = currentIndent.substring(3, currentIndent.length());
         currentIndentation -= 1;
         return true;
+    }
+
+    private Scope deriveScope(Dependency dependency) {
+        return Scope.parseFromString(dependency.getScope());
+    }
+
+    private ArtifactPackaging derivePackaging(Artifact artifact) {
+        return ArtifactPackaging.parseFromString(artifact.getExtension());
     }
 
 }

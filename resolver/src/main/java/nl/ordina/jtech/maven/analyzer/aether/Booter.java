@@ -22,9 +22,6 @@ import org.sonatype.aether.repository.LocalRepository;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
 
-import nl.ordina.jtech.maven.analyzer.aether.ConsoleRepositoryListener;
-import nl.ordina.jtech.maven.analyzer.aether.ManualRepositorySystemFactory;
-
 /**
  * A helper to boot the repository system and a repository system session.
  */
@@ -39,8 +36,6 @@ public class Booter {
 
         LocalRepository localRepo = new LocalRepository("target/local-repo");
         session.setLocalRepositoryManager(system.newLocalRepositoryManager(localRepo));
-
-        session.setRepositoryListener(new ConsoleRepositoryListener());
 
         return session;
     }
