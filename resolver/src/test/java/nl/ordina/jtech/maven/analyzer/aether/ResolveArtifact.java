@@ -34,6 +34,15 @@ public class ResolveArtifact {
         System.out.println(dependencyGraph.toJson());
     }
 
+    @Test
+    public void resolveDirty() throws DependencyCollectionException {
+        // org.hibernate.beanvalidation.tck:beanvalidation-tck-tests:jar:1.1.0.Beta1
+        ArtifactResolver resolver = new ArtifactResolver();
+        String artifactCoordinate = "org.hibernate.beanvalidation.tck:beanvalidation-tck-tests:jar:1.1.0.Beta1";
+        DependencyGraph dependencyGraph = resolver.resolveToDependencyGraph(new DefaultArtifact(artifactCoordinate));
+        System.out.println(dependencyGraph.toJson());
+    }
+
 }
 
 
