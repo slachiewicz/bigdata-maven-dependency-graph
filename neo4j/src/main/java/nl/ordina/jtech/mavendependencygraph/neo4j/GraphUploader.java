@@ -27,7 +27,7 @@ import java.util.concurrent.TimeoutException;
 @Path("/dependency")
 public class GraphUploader {
     private static final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(1000);
-    private static final ExecutorService executorService = new ThreadPoolExecutor(1, 1, 1, TimeUnit.HOURS, queue);
+    private static final ExecutorService executorService = new ThreadPoolExecutor(16, 16, 1, TimeUnit.HOURS, queue, new ThreadPoolExecutor.CallerRunsPolicy());
     private static final Gson GSON = new Gson();
     private static int executeCount = 0;
     private final GraphDatabaseService database;
