@@ -27,7 +27,6 @@ public class CypherQuery {
     }
 
     public Result execute(final GraphDatabaseService databaseService) {
-        System.out.println("query = " + query);
         return databaseService.execute(query);
     }
 

@@ -28,11 +28,13 @@ import java.util.concurrent.TimeoutException;
  */
 @Path("/dependency")
 public class GraphUploader {
-    private static final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(1000);
-    private static final ExecutorService executorService = new ThreadPoolExecutor(16, 16, 1, TimeUnit.HOURS, queue, new ThreadPoolExecutor.CallerRunsPolicy());
+    private static final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(5000);
+    private static final ExecutorService executorService = new ThreadPoolExecutor(1, 1, 1, TimeUnit.HOURS, queue, new ThreadPoolExecutor.CallerRunsPolicy());
     private static final Gson GSON = new Gson();
-    private static int executeCount = 0;
+    private static long executeCount = 0;
     private final GraphDatabaseService database;
+    private static long skippedCount;
+    private static long errorCount;
 
     public GraphUploader(@Context GraphDatabaseService database) throws IOException, TimeoutException {
         this.database = database;
@@ -64,7 +66,7 @@ public class GraphUploader {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String status() {
-        return UploaderStatus.build(executeCount, (ThreadPoolExecutor) executorService).toJson();
+        return UploaderStatus.build(executeCount, skippedCount, errorCount, (ThreadPoolExecutor) executorService).toJson();
     }
 
 
@@ -79,13 +81,15 @@ public class GraphUploader {
                 try (final Transaction transaction = database.beginTx()) {
                     graph.getVertices().stream().forEach(this::createVertexWhenNotExists);
                     CypherQuery query = DependencyGraphConverter.relations(graph);
-                    System.out.println("query.toString() = " + query.toString());
                     query.execute(database);
                     transaction.success();
                     executeCount++;
                 } catch (Exception e) {
+                    errorCount++;
                     e.printStackTrace();
                 }
+            } else {
+                skippedCount++;
             }
         });
 
