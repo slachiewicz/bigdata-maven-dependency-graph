@@ -12,6 +12,7 @@ public class Neo4JConstants {
     public static final String MAVEN_ARTIFACT_VERSION = "version";
     public static final String MAVEN_ARTIFACT_PACKAGING = "packaging";
     public static final String MAVEN_ARTIFACT_CLASSIFIER = "classifier";
+    public static final String MAVEN_ARTIFACT_HASH = "hash";
 
 
     public static final String CYPHER_MERGE = "merge";
