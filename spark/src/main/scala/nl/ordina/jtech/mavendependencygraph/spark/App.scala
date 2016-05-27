@@ -7,6 +7,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf}
 import org.sonatype.aether.util.artifact.DefaultArtifact
 
+import scala.util.{Success, Try}
 import scalaj.http.{Http, HttpResponse}
 
 object App extends Logging {
@@ -45,8 +46,14 @@ object App extends Logging {
     graphs.foreach(graph => {
       val json: String = graph.toJson
       logInfo("json: " + json)
-      val response: HttpResponse[String] = Http(url).header("content-type", "application/json").postData(json).asString
-      logInfo("Response: " + response.code)
+      Try {
+        val response: HttpResponse[String] = Http(url).header("content-type", "application/json").postData(json).asString
+        logInfo("Response: " + response.code)
+      } recoverWith {
+        case e =>
+          logError(s"NonFatal exception occured while posting json: $json", e)
+          Success()
+      }
     })
   }
 

@@ -26,6 +26,7 @@ import org.sonatype.aether.collection.CollectRequest;
 import org.sonatype.aether.collection.CollectResult;
 import org.sonatype.aether.collection.DependencyCollectionException;
 import org.sonatype.aether.graph.Dependency;
+import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
@@ -58,12 +59,20 @@ public class ArtifactResolver {
         collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE)); //FIXME: Scope shouldn't matter
         collectRequest.addRepository(repo);
 
-        CollectResult collectResult = system.collectDependencies(session, collectRequest);
+        CollectResult collectResult = null;
+        try {
+            collectResult = system.collectDependencies(session, collectRequest);
+        } catch (DependencyCollectionException e) {
+            LOGGER.error("Dependencies not resolved for artifact " + artifact, e);
+            collectResult = e.getResult();
+        }
 
         JTechDependencyVisitor jTechVisitor = new JTechDependencyVisitor();
         DependencyGraph localDependencies = new DependencyGraph();
         jTechVisitor.setLocalDependencies(localDependencies);
-        collectResult.getRoot().accept(jTechVisitor);
+        if (collectResult.getRoot() != null) {
+            collectResult.getRoot().accept(jTechVisitor);
+        }
 
         return jTechVisitor.getLocalDependencies();
     }
