@@ -1,9 +1,11 @@
 package nl.ordina.jtech.mavendependencygraph.neo4j;
 
 import com.google.gson.Gson;
+import nl.ordina.jtech.mavendependencygraph.model.ArtifactVertex;
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
-import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.*;
+import org.neo4j.graphdb.schema.IndexDefinition;
+import org.neo4j.graphdb.schema.Schema;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -34,6 +36,29 @@ public class GraphUploader {
 
     public GraphUploader(@Context GraphDatabaseService database) throws IOException, TimeoutException {
         this.database = database;
+        //createIndices();
+    }
+
+    private void createIndices() {
+        try {
+            IndexDefinition indexDefinition;
+            try (Transaction tx = database.beginTx()) {
+                Schema schema = database.schema();
+                indexDefinition = schema.indexFor(DynamicLabel.label(Neo4JConstants.MAVEN_ARTIFACT_NODE_TYPE))
+                        .on(Neo4JConstants.MAVEN_ARTIFACT_HASH)
+                        .create();
+                tx.success();
+            }
+        } catch (ConstraintViolationException e) {
+            System.err.println("Warning index already there");
+        }
+    }
+
+    private void createVertexWhenNotExists(final ArtifactVertex vertex) {
+        Result execute = database.execute(DependencyGraphConverter.matchVertex(vertex));
+        if (!execute.hasNext()) {
+            database.execute(DependencyGraphConverter.createVertex(vertex));
+        }
     }
 
     @GET
@@ -51,9 +76,13 @@ public class GraphUploader {
         executorService.submit(() -> {
             final DependencyGraph graph = GSON.fromJson(graphJson, DependencyGraph.class);
             try (final Transaction transaction = database.beginTx()) {
-                database.execute(DependencyGraphConverter.inCypher(graph));
+                graph.getVertices().stream().forEach(vertex -> createVertexWhenNotExists(vertex));
+                String cypher = DependencyGraphConverter.relations(graph);
+                database.execute(cypher);
                 transaction.success();
                 executeCount++;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
 
