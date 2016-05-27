@@ -75,6 +75,7 @@ public class GraphUploader {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response uploadSubGraph(final String graphJson) throws IOException, InterruptedException {
+        System.out.println("Graph => " + graphJson);
         executorService.submit(() -> {
             final DependencyGraph graph = GSON.fromJson(graphJson, DependencyGraph.class);
             if (hasData(graph)) {
