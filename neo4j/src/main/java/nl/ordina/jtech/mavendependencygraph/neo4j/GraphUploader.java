@@ -55,9 +55,9 @@ public class GraphUploader {
     }
 
     private void createVertexWhenNotExists(final ArtifactVertex vertex) {
-        Result execute = database.execute(DependencyGraphConverter.matchVertex(vertex));
+        Result execute = DependencyGraphConverter.matchVertex(vertex).execute(database);
         if (!execute.hasNext()) {
-            database.execute(DependencyGraphConverter.createVertex(vertex));
+            DependencyGraphConverter.createVertex(vertex).execute(database);
         }
     }
 
@@ -75,18 +75,25 @@ public class GraphUploader {
     public Response uploadSubGraph(final String graphJson) throws IOException, InterruptedException {
         executorService.submit(() -> {
             final DependencyGraph graph = GSON.fromJson(graphJson, DependencyGraph.class);
-            try (final Transaction transaction = database.beginTx()) {
-                graph.getVertices().stream().forEach(vertex -> createVertexWhenNotExists(vertex));
-                String cypher = DependencyGraphConverter.relations(graph);
-                database.execute(cypher);
-                transaction.success();
-                executeCount++;
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (hasData(graph)) {
+                try (final Transaction transaction = database.beginTx()) {
+                    graph.getVertices().stream().forEach(this::createVertexWhenNotExists);
+                    CypherQuery query = DependencyGraphConverter.relations(graph);
+                    System.out.println("query.toString() = " + query.toString());
+                    query.execute(database);
+                    transaction.success();
+                    executeCount++;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         });
 
         return Response.ok().entity("Submitted").build();
 
+    }
+
+    private boolean hasData(DependencyGraph graph) {
+        return !(graph.getEdges().isEmpty() || graph.getVertices().isEmpty());
     }
 }
