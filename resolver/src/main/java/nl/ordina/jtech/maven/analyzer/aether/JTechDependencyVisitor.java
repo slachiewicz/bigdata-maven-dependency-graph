@@ -78,7 +78,7 @@ public class JTechDependencyVisitor implements DependencyVisitor {
     }
 
     private boolean isValidVersion(String version) {
-        return org.apache.maven.artifact.Artifact.VERSION_FILE_PATTERN.matcher(version).matches();
+        return !version.contains("$");
     }
 
 
