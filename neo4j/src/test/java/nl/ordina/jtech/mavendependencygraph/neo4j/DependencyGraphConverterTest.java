@@ -22,13 +22,6 @@ import static org.neo4j.server.rest.transactional.ResultDataContent.graph;
  */
 public class DependencyGraphConverterTest {
 
-
-//    @Test
-//    public void testConvert() throws Exception {
-//        String s = DependencyGraphConverter.inCypher(GraphCreator.getGraph());
-//        System.out.println(s);
-//    }
-
     @Test
     public void testMatch() throws Exception {
         GraphCreator.getGraph().getVertices().stream().map(DependencyGraphConverter::matchVertex).forEach(System.out::println);
