@@ -32,6 +32,16 @@ public class CypherQuery {
     }
 
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof CypherQuery && this.query.equals(((CypherQuery) obj).query);
+    }
+
+    @Override
+    public int hashCode() {
+        return query.hashCode();
+    }
+
     public static Collector<CypherQuery, ?, CypherQuery> joining(final CharSequence delimiter) {
         return Collectors.mapping(new Function<CypherQuery, String>() {
             @Override
@@ -44,4 +54,5 @@ public class CypherQuery {
     public CypherQuery prepend(String prependQuery) {
         return new CypherQuery(prependQuery + " " + this.query);
     }
+
 }

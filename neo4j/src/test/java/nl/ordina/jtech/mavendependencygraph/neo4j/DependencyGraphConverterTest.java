@@ -5,10 +5,16 @@ import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
 import org.junit.Test;
 import org.neo4j.test.SuppressOutput;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 import static org.neo4j.server.rest.transactional.ResultDataContent.graph;
 
 /**
@@ -56,14 +62,8 @@ public class DependencyGraphConverterTest {
         Map<Integer, ArtifactVertex> mappedVertices = graph.getVertices().stream().collect(Collectors.toMap(ArtifactVertex::getId, f -> f));
 
         Stream<CypherQuery> cypherQueryStream = graph.getEdges().stream().flatMap(artifactEdge -> converter.createEdgeMatches(artifactEdge, mappedVertices));
-//        Stream<String> stringStream = cypherQueryStream.map(f -> f.toString());
-//        Stream<CypherQuery> distinct = cypherQueryStream.filter();
-//        distinct.forEach(System.out::println);
-
-//        Stream<CypherQuery> cypherQueryStream = graph.getEdges().stream().flatMap(artifactEdge -> converter.createEdgeMatches(artifactEdge, mappedVertices)).map(CypherQuery::toString).distinct();
-//        cypherQueryStream.forEach(f-> System.out.println("\"" + f + "\""));
-//        CypherQuery vertixesMatch = cypherQueryStream.distinct().collect(CypherQuery.joining(",")).prepend("match");
-//        System.out.println("vertixesMatch = " + vertixesMatch);
-
+        Stream<CypherQuery> distinct = cypherQueryStream.distinct();
+        List<CypherQuery> collect = distinct.collect(Collectors.toList());
+        assertThat(collect.size(), is(3));
     }
 }
