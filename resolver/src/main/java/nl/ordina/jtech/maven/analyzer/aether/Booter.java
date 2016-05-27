@@ -42,8 +42,8 @@ public class Booter {
 
     public static RemoteRepository newCentralRepository() {
 //        return new RemoteRepository("central", "default", "http://uk.maven.org/maven2/");
-//        return new RemoteRepository("central", "default", "http://jtechbd-cldsrvc.cloudapp.net:8090/nexus/content/repositories/maven");
-        return new RemoteRepository("central", "default", "http://jtechbd-nexus:8090/nexus/content/repositories/maven");
+        return new RemoteRepository("central", "default", "http://jtechbd-cldsrvc.cloudapp.net:8090/nexus/content/repositories/maven");
+//        return new RemoteRepository("central", "default", "http://jtechbd-nexus:8090/nexus/content/repositories/maven");
 
     }
 

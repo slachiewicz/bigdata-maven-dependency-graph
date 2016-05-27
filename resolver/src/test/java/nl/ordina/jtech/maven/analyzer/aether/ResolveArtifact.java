@@ -43,6 +43,14 @@ public class ResolveArtifact {
         System.out.println(dependencyGraph.toJson());
     }
 
+    @Test
+    public void resolveActiveMq() throws DependencyCollectionException {
+        ArtifactResolver resolver = new ArtifactResolver();
+        String artifactCoordinate = "activemq:activemq-jaas:jar:4.0-M3";
+        DependencyGraph dependencyGraph = resolver.resolveToDependencyGraph(new DefaultArtifact(artifactCoordinate));
+        System.out.println(dependencyGraph.toJson());
+
+    }
 }
 
 
