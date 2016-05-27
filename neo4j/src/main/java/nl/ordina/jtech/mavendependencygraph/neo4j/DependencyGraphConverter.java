@@ -49,13 +49,6 @@ import static nl.ordina.jtech.mavendependencygraph.neo4j.Neo4JConstants.*;
  */
 public class DependencyGraphConverter {
 
-//    public static final String MAVEN_NODE = MAVEN_ARTIFACT_NODE_TYPE + " { " +
-//            MAVEN_ARTIFACT_HASH + ": \"%s\", " +
-//            MAVEN_ARTIFACT_GROUP_ID + ": \"%s\", " +
-//            MAVEN_ARTIFACT_ARTIFACT_ID + ": \"%s\", " +
-//            MAVEN_ARTIFACT_CLASSIFIER + ": \"%S\", " +
-//            MAVEN_ARTIFACT_PACKAGING + ": \"%s\", " +
-//            MAVEN_ARTIFACT_VERSION + ": \"%s\" ";
     public static final String MAVEN_NODE_CREATE = MAVEN_ARTIFACT_NODE_TYPE + " { " +
             MAVEN_ARTIFACT_HASH + ": \"%s\", " +
             MAVEN_ARTIFACT_GROUP_ID + ": \"%s\", " +
@@ -63,31 +56,14 @@ public class DependencyGraphConverter {
             MAVEN_ARTIFACT_CLASSIFIER + ": \"%S\", " +
             MAVEN_ARTIFACT_PACKAGING + ": \"%s\", " +
             MAVEN_ARTIFACT_VERSION + ": \"%s\" }";
-//    private static final String NODE_FORMAT = CYPHER_MERGE + " (%s: " + MAVEN_NODE + "})";
+
     private static final String CYPHER_RELATION_FORMAT = "create unique (_%s) -[:%s]->(_%s)";
 
     private static final String MATCH_ARTIFACT = "MATCH (n:" + MAVEN_ARTIFACT_NODE_TYPE + " { " + MAVEN_ARTIFACT_HASH + ":\"%s\"}) return n";
 
-    private static final String MATCH_RELATION_ENDS =
-            "(_%s:" + MAVEN_ARTIFACT_NODE_TYPE + "{"  + MAVEN_ARTIFACT_HASH + ":\"%s\"}), " +
-            "(_%s:" + MAVEN_ARTIFACT_NODE_TYPE + "{"  + MAVEN_ARTIFACT_HASH + ":\"%s\"})";
-
-    public static final String MATCH_ARTIFACT_2 = "(_%s:" + MAVEN_ARTIFACT_NODE_TYPE + "{"  + MAVEN_ARTIFACT_HASH + ":\"%s\"})";
+    private static final String MATCH_ARTIFACT_2 = "(_%s:" + MAVEN_ARTIFACT_NODE_TYPE + "{"  + MAVEN_ARTIFACT_HASH + ":\"%s\"})";
 
     private static final String CREATE_ARTIFACT = "create (n:" + MAVEN_NODE_CREATE + ")";
-
-//    public static String inCypher(final DependencyGraph graph) {
-//        Map<Integer, ArtifactVertex> mappedVertices = graph.getVertices().stream().collect(Collectors.toMap(ArtifactVertex::getId, f -> f));
-//
-//        Stream<String> cypherVertexStream = graph.getVertices().stream().map(DependencyGraphConverter::mergeNode);
-//        Stream<String> cypherRelationStream = graph.getEdges().stream().map(artifactEdge -> build(artifactEdge, mappedVertices));
-//
-//        return Stream.concat(cypherVertexStream, cypherRelationStream).collect(Collectors.joining("\n"));
-//    }
-//
-//    private static String mergeNode(final ArtifactVertex vertex) {
-//        return String.format(NODE_FORMAT, vertex.gav("_"), vertex.getId(), vertex.getGroupId(), vertex.getArtifactId(), vertex.getClassifier(), vertex.getPackaging(), vertex.getVersion());
-//    }
 
     protected static CypherQuery build(final ArtifactEdge edge, final Map<Integer, ArtifactVertex> vertices) {
         return cypher(String.format(CYPHER_RELATION_FORMAT, vertices.get(edge.getSource()).gav("_"), edge.getScope(), vertices.get(edge.getDestination()).gav("_")));
