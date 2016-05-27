@@ -74,7 +74,11 @@ public class ArtifactResolver {
             collectResult.getRoot().accept(jTechVisitor);
         }
 
-        return jTechVisitor.getLocalDependencies();
+        DependencyGraph resultingDependencyGraph = jTechVisitor.getLocalDependencies();
+        if (resultingDependencyGraph.getVertices().isEmpty()) {
+            LOGGER.error("No valid dependencies found for " + artifact);
+        }
+        return resultingDependencyGraph;
     }
 
     public static void main(String[] args) {

@@ -54,12 +54,16 @@ public class JTechDependencyVisitor implements DependencyVisitor {
         else if (currentIndentation == 2) {
             ArtifactVertex secondLevelArtifactVerteX = getArtifactVertexFromArtifactCoordinate(node.getDependency());
 
-            LOGGER.info("   ----> Source artifact vertex and destination artifact vertex being added...");
-            LOGGER.info("   ----> Adding dependency nr. " + (localDependencies.getEdges().size() + 1));
+            if (isValidVersion(secondLevelArtifactVerteX.getVersion())) {
+                LOGGER.info("   ----> Source artifact vertex and destination artifact vertex being added...");
+                LOGGER.info("   ----> Adding dependency nr. " + (localDependencies.getEdges().size() + 1));
 
-            Scope scope = deriveScope(node.getDependency());
+                Scope scope = deriveScope(node.getDependency());
 
-            localDependencies.addDependency(firstLevelArtifactVertex, secondLevelArtifactVerteX, scope);
+                localDependencies.addDependency(firstLevelArtifactVertex, secondLevelArtifactVerteX, scope);
+            } else {
+                LOGGER.info("   ----> Artifact vertex NOT being added due to INVALID version ...");
+            }
         } else {
             LOGGER.info("   ----> Artifact vertex NOT being added...");
 
@@ -71,6 +75,10 @@ public class JTechDependencyVisitor implements DependencyVisitor {
             currentIndent = "|  " + currentIndent;
         }
         return true;
+    }
+
+    private boolean isValidVersion(String version) {
+        return org.apache.maven.artifact.Artifact.VERSION_FILE_PATTERN.matcher(version).matches();
     }
 
 
@@ -86,7 +94,6 @@ public class JTechDependencyVisitor implements DependencyVisitor {
         LOGGER.info(" from split -> " + artifactVertex.toString());
         return artifactVertex;
     }
-
 
 
     public boolean visitLeave(DependencyNode node) {
