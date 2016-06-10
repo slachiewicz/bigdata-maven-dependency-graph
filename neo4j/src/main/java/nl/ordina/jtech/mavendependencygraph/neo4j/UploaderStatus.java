@@ -9,27 +9,31 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 public class UploaderStatus implements GSonConverter {
 
-    private final int executedCount;
+    private static long errorCount;
+    private final long executedCount;
     private final int activeCount;
     private final long completedTaskCount;
     private final int poolSize;
     private final int queued;
     private final long taskCount;
+    private final long skippedCount;
 
-    private UploaderStatus(int count, ThreadPoolExecutor service) {
+    private UploaderStatus(long count, long skipped, long errorCnt, ThreadPoolExecutor service) {
         executedCount = count;
         activeCount = service.getActiveCount();
         completedTaskCount = service.getCompletedTaskCount();
         poolSize = service.getPoolSize();
         queued = service.getQueue().size();
         taskCount = service.getTaskCount();
+        skippedCount = skipped;
+        errorCount = errorCnt;
     }
 
-    public static final UploaderStatus build(final int executerCount, final ThreadPoolExecutor service) {
-        return new UploaderStatus(executerCount, service);
+    public static final UploaderStatus build(final long executeCount, final long skipped, final long errorCnt, final ThreadPoolExecutor service) {
+        return new UploaderStatus(executeCount, skipped, errorCnt, service);
     }
 
-    public int getExecutedCount() {
+    public long getExecutedCount() {
         return executedCount;
     }
 
@@ -51,5 +55,13 @@ public class UploaderStatus implements GSonConverter {
 
     public long getTaskCount() {
         return taskCount;
+    }
+
+    public long getSkippedCount() {
+        return skippedCount;
+    }
+
+    public static long getErrorCount() {
+        return errorCount;
     }
 }

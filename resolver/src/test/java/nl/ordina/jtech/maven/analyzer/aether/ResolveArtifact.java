@@ -17,6 +17,9 @@
 package nl.ordina.jtech.maven.analyzer.aether;
 
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.junit.Test;
 import org.sonatype.aether.collection.DependencyCollectionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;

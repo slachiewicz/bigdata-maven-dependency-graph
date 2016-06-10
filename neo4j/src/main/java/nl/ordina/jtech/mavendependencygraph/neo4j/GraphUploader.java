@@ -28,23 +28,24 @@ import java.util.concurrent.TimeoutException;
  */
 @Path("/dependency")
 public class GraphUploader {
-    private static final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(1000);
-    private static final ExecutorService executorService = new ThreadPoolExecutor(16, 16, 1, TimeUnit.HOURS, queue, new ThreadPoolExecutor.CallerRunsPolicy());
+    private static final BlockingQueue<Runnable> queue = new ArrayBlockingQueue<>(5000);
+    private static final ExecutorService executorService = new ThreadPoolExecutor(1, 1, 1, TimeUnit.HOURS, queue, new ThreadPoolExecutor.CallerRunsPolicy());
     private static final Gson GSON = new Gson();
-    private static int executeCount = 0;
+    private static long executeCount = 0;
     private final GraphDatabaseService database;
+    private static long skippedCount;
+    private static long errorCount;
 
     public GraphUploader(@Context GraphDatabaseService database) throws IOException, TimeoutException {
         this.database = database;
-        //createIndices();
+        createIndices();
     }
 
     private void createIndices() {
         try {
-            IndexDefinition indexDefinition;
             try (Transaction tx = database.beginTx()) {
                 Schema schema = database.schema();
-                indexDefinition = schema.indexFor(DynamicLabel.label(Neo4JConstants.MAVEN_ARTIFACT_NODE_TYPE))
+                schema.indexFor(DynamicLabel.label(Neo4JConstants.MAVEN_ARTIFACT_NODE_TYPE))
                         .on(Neo4JConstants.MAVEN_ARTIFACT_HASH)
                         .create();
                 tx.success();
@@ -55,16 +56,16 @@ public class GraphUploader {
     }
 
     private void createVertexWhenNotExists(final ArtifactVertex vertex) {
-        Result execute = database.execute(DependencyGraphConverter.matchVertex(vertex));
+        Result execute = DependencyGraphConverter.matchVertex(vertex).execute(database);
         if (!execute.hasNext()) {
-            database.execute(DependencyGraphConverter.createVertex(vertex));
+            DependencyGraphConverter.createVertex(vertex).execute(database);
         }
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String status() {
-        return UploaderStatus.build(executeCount, (ThreadPoolExecutor) executorService).toJson();
+        return UploaderStatus.build(executeCount, skippedCount, errorCount, (ThreadPoolExecutor) executorService).toJson();
     }
 
 
@@ -73,20 +74,30 @@ public class GraphUploader {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response uploadSubGraph(final String graphJson) throws IOException, InterruptedException {
+        System.out.println("Graph => " + graphJson);
         executorService.submit(() -> {
             final DependencyGraph graph = GSON.fromJson(graphJson, DependencyGraph.class);
-            try (final Transaction transaction = database.beginTx()) {
-                graph.getVertices().stream().forEach(vertex -> createVertexWhenNotExists(vertex));
-                String cypher = DependencyGraphConverter.relations(graph);
-                database.execute(cypher);
-                transaction.success();
-                executeCount++;
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (hasData(graph)) {
+                try (final Transaction transaction = database.beginTx()) {
+                    graph.getVertices().stream().forEach(this::createVertexWhenNotExists);
+                    CypherQuery query = DependencyGraphConverter.relations(graph);
+                    query.execute(database);
+                    transaction.success();
+                    executeCount++;
+                } catch (Exception e) {
+                    errorCount++;
+                    e.printStackTrace();
+                }
+            } else {
+                skippedCount++;
             }
         });
 
         return Response.ok().entity("Submitted").build();
 
+    }
+
+    private boolean hasData(DependencyGraph graph) {
+        return !(graph.getEdges().isEmpty() || graph.getVertices().isEmpty());
     }
 }
