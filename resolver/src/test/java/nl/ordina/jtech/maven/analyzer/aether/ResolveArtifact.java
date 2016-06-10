@@ -47,14 +47,12 @@ public class ResolveArtifact {
     }
 
     @Test
-    public void name() throws Exception {
-        DefaultArtifactVersion defaultArtifactVersion = new DefaultArtifactVersion("1.0.0");
-        DefaultArtifactVersion defaultArtifactVersion2 = new DefaultArtifactVersion("${hdkjas.jdlas}");
-        defaultArtifactVersion.parseVersion("hdsjkahkjhdkjas");
-        System.out.println("defaultArtifactVersion = " + defaultArtifactVersion);
-        System.out.println("defaultArtifactVersion2 = " + defaultArtifactVersion2.getMajorVersion());
-
-
+    public void resolveActiveMq() throws DependencyCollectionException {
+        // org.hibernate.beanvalidation.tck:beanvalidation-tck-tests:jar:1.1.0.Beta1
+        ArtifactResolver resolver = new ArtifactResolver();
+        String artifactCoordinate = "activemq:activemq-jaas:jar:4.0-M3";
+        DependencyGraph dependencyGraph = resolver.resolveToDependencyGraph(new DefaultArtifact(artifactCoordinate));
+        System.out.println(dependencyGraph.toJson());
     }
 }
 
