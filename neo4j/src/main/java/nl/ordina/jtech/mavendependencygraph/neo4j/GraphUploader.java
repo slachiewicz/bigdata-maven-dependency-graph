@@ -38,15 +38,14 @@ public class GraphUploader {
 
     public GraphUploader(@Context GraphDatabaseService database) throws IOException, TimeoutException {
         this.database = database;
-        //createIndices();
+        createIndices();
     }
 
     private void createIndices() {
         try {
-            IndexDefinition indexDefinition;
             try (Transaction tx = database.beginTx()) {
                 Schema schema = database.schema();
-                indexDefinition = schema.indexFor(DynamicLabel.label(Neo4JConstants.MAVEN_ARTIFACT_NODE_TYPE))
+                schema.indexFor(DynamicLabel.label(Neo4JConstants.MAVEN_ARTIFACT_NODE_TYPE))
                         .on(Neo4JConstants.MAVEN_ARTIFACT_HASH)
                         .create();
                 tx.success();

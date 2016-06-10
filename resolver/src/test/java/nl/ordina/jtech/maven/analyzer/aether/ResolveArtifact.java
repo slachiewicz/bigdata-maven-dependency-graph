@@ -17,6 +17,9 @@
 package nl.ordina.jtech.maven.analyzer.aether;
 
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
+import org.apache.maven.artifact.Artifact;
+import org.apache.maven.artifact.versioning.ArtifactVersion;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.junit.Test;
 import org.sonatype.aether.collection.DependencyCollectionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
@@ -43,6 +46,16 @@ public class ResolveArtifact {
         System.out.println(dependencyGraph.toJson());
     }
 
+    @Test
+    public void name() throws Exception {
+        DefaultArtifactVersion defaultArtifactVersion = new DefaultArtifactVersion("1.0.0");
+        DefaultArtifactVersion defaultArtifactVersion2 = new DefaultArtifactVersion("${hdkjas.jdlas}");
+        defaultArtifactVersion.parseVersion("hdsjkahkjhdkjas");
+        System.out.println("defaultArtifactVersion = " + defaultArtifactVersion);
+        System.out.println("defaultArtifactVersion2 = " + defaultArtifactVersion2.getMajorVersion());
+
+
+    }
 }
 
 
