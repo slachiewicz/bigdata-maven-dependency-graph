@@ -7,6 +7,7 @@ import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf}
 import org.sonatype.aether.util.artifact.DefaultArtifact
 
+import scala.concurrent.duration._
 import scala.util.{Success, Try}
 import scalaj.http.{Http, HttpResponse}
 
@@ -21,7 +22,7 @@ object App extends Logging {
     dstream.map { record =>
       logInfo("Record: " + record)
       MavenEntry(record)
-    }.map(resolveSubGraph)
+    }.map(entry => resolveSubGraph(entry)(timeout = 5 seconds))
       .filter(_.isDefined)
       .map(_.get)
       .foreachRDD(graphRDD => sendGraphToNeo(graphRDD, url))
@@ -31,14 +32,19 @@ object App extends Logging {
     ssc.stop()
   }
 
-  def resolveSubGraph(mavenEntry: MavenEntry): Option[DependencyGraph] = {
+  def resolveSubGraph(mavenEntry: MavenEntry)(implicit timeout: Duration): Option[DependencyGraph] = {
     val resolver: ArtifactResolver = new ArtifactResolver()
     val artifactCoordinate = mavenEntry.groupId + ":" + mavenEntry.artifactId + ":" + mavenEntry.version
-    logInfo("ArtificactCoordinate: " + artifactCoordinate)
-    val dependencyGraph = resolver.resolveToDependencyGraph(new DefaultArtifact(artifactCoordinate))
-    dependencyGraph match {
-      case null => None
-      case _ => Some(dependencyGraph)
+    logInfo("Resolving artifactCoordinate: " + artifactCoordinate)
+    TimeBoxed {
+      val dependencyGraph = resolver.resolveToDependencyGraph(new DefaultArtifact(artifactCoordinate))
+      dependencyGraph match {
+        case null => None
+        case _ => Some(dependencyGraph)
+      }
+    } recover {
+      logWarning(s"Could not resolve artifact within $timeout, artifactCoordinate: $artifactCoordinate")
+      None
     }
   }
 
