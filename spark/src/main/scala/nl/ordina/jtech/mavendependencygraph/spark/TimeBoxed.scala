@@ -8,7 +8,7 @@ import scala.concurrent.ExecutionContext.Implicits._
 object TimeBoxed {
   class TimeBoxedOperation[A](f: => A) {
     def get(implicit timeout: Duration) =
-      Try(Await.result(Future(f), timeout)).get
+      Await.result(Future(f), timeout)
     def recover(default: A)(implicit timeout: Duration) =
       Try(Await.result(Future(f), timeout)).getOrElse(default)
   }
