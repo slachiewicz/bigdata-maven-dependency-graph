@@ -4,24 +4,15 @@ import com.google.gson.Gson;
 import nl.ordina.jtech.mavendependencygraph.model.ArtifactVertex;
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
 import org.neo4j.graphdb.*;
-import org.neo4j.graphdb.schema.IndexDefinition;
 import org.neo4j.graphdb.schema.Schema;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
+import javax.ws.rs.*;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 
 /**
  * Class: GraphUploader
@@ -32,13 +23,14 @@ public class GraphUploader {
     private static final ExecutorService executorService = new ThreadPoolExecutor(1, 1, 1, TimeUnit.HOURS, queue, new ThreadPoolExecutor.CallerRunsPolicy());
     private static final Gson GSON = new Gson();
     private static long executeCount = 0;
-    private final GraphDatabaseService database;
     private static long skippedCount;
     private static long errorCount;
+    private static long relationsCreated;
+    private final GraphDatabaseService database;
 
     public GraphUploader(@Context GraphDatabaseService database) throws IOException, TimeoutException {
         this.database = database;
-        createIndices();
+        //createIndices();
     }
 
     private void createIndices() {
@@ -65,7 +57,7 @@ public class GraphUploader {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public String status() {
-        return UploaderStatus.build(executeCount, skippedCount, errorCount, (ThreadPoolExecutor) executorService).toJson();
+        return UploaderStatus.build(executeCount, skippedCount, errorCount, relationsCreated, (ThreadPoolExecutor) executorService).toJson();
     }
 
 
@@ -74,15 +66,15 @@ public class GraphUploader {
     @Produces(MediaType.APPLICATION_JSON)
     @Consumes(MediaType.APPLICATION_JSON)
     public Response uploadSubGraph(final String graphJson) throws IOException, InterruptedException {
-        System.out.println("Graph => " + graphJson);
         executorService.submit(() -> {
             final DependencyGraph graph = GSON.fromJson(graphJson, DependencyGraph.class);
             if (hasData(graph)) {
                 try (final Transaction transaction = database.beginTx()) {
                     graph.getVertices().stream().forEach(this::createVertexWhenNotExists);
                     CypherQuery query = DependencyGraphConverter.relations(graph);
-                    query.execute(database);
+                    Result execute = query.execute(database);
                     transaction.success();
+                    relationsCreated += execute.getQueryStatistics().getRelationshipsCreated();
                     executeCount++;
                 } catch (Exception e) {
                     errorCount++;

@@ -17,9 +17,11 @@ public class UploaderStatus implements GSonConverter {
     private final int queued;
     private final long taskCount;
     private final long skippedCount;
+    private final long relationsCreated;
 
-    private UploaderStatus(long count, long skipped, long errorCnt, ThreadPoolExecutor service) {
+    private UploaderStatus(long count, long skipped, long errorCnt, long relationsCreated, ThreadPoolExecutor service) {
         executedCount = count;
+        this.relationsCreated = relationsCreated;
         activeCount = service.getActiveCount();
         completedTaskCount = service.getCompletedTaskCount();
         poolSize = service.getPoolSize();
@@ -29,8 +31,12 @@ public class UploaderStatus implements GSonConverter {
         errorCount = errorCnt;
     }
 
-    public static final UploaderStatus build(final long executeCount, final long skipped, final long errorCnt, final ThreadPoolExecutor service) {
-        return new UploaderStatus(executeCount, skipped, errorCnt, service);
+    public static final UploaderStatus build(final long executeCount, final long skipped, final long errorCnt, final long relationsCreated, final ThreadPoolExecutor service) {
+        return new UploaderStatus(executeCount, skipped, errorCnt, relationsCreated, service);
+    }
+
+    public static long getErrorCount() {
+        return errorCount;
     }
 
     public long getExecutedCount() {
@@ -61,7 +67,7 @@ public class UploaderStatus implements GSonConverter {
         return skippedCount;
     }
 
-    public static long getErrorCount() {
-        return errorCount;
+    public long getRelationsCreated() {
+        return relationsCreated;
     }
 }

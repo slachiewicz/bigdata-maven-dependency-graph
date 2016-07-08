@@ -8,7 +8,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 import static nl.ordina.jtech.mavendependencygraph.neo4j.CypherQuery.cypher;
 import static nl.ordina.jtech.mavendependencygraph.neo4j.Neo4JConstants.*;
@@ -72,8 +71,8 @@ public class DependencyGraphConverter {
     protected static Stream<CypherQuery> createEdgeMatches(final ArtifactEdge edge, final Map<Integer, ArtifactVertex> vertices) {
         ArtifactVertex sourceVertex = vertices.get(edge.getSource());
         ArtifactVertex destinationVertex = vertices.get(edge.getDestination());
-        CypherQuery source = cypher(String.format(MATCH_ARTIFACT_2, sourceVertex.gav("_"), sourceVertex.hashCode()));
-        CypherQuery destination = cypher(String.format(MATCH_ARTIFACT_2, destinationVertex.gav("_"), destinationVertex.hashCode()));
+        CypherQuery source = cypher(String.format(MATCH_ARTIFACT_2, sourceVertex.gav("_"), sourceVertex.getId()));
+        CypherQuery destination = cypher(String.format(MATCH_ARTIFACT_2, destinationVertex.gav("_"), destinationVertex.getId()));
         return Arrays.asList(source, destination).stream();
     }
 
