@@ -16,7 +16,10 @@
 
 package nl.ordina.jtech.maven.analyzer.aether;
 
+import nl.ordina.jtech.mavendependencygraph.model.ArtifactPackaging;
+import nl.ordina.jtech.mavendependencygraph.model.ArtifactVertex;
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
+import nl.ordina.jtech.mavendependencygraph.model.Scope;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonatype.aether.RepositorySystem;
@@ -26,16 +29,16 @@ import org.sonatype.aether.collection.CollectRequest;
 import org.sonatype.aether.collection.CollectResult;
 import org.sonatype.aether.collection.DependencyCollectionException;
 import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyNode;
 import org.sonatype.aether.repository.RemoteRepository;
+import org.sonatype.aether.resolution.ArtifactDescriptorException;
+import org.sonatype.aether.resolution.ArtifactDescriptorRequest;
+import org.sonatype.aether.resolution.ArtifactDescriptorResult;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
 import org.sonatype.aether.util.artifact.JavaScopes;
-import org.springframework.stereotype.Component;
 
 /**
  * Resolver for artifacts
  */
-@Component
 public class ArtifactResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(ArtifactResolver.class);
 
@@ -43,21 +46,37 @@ public class ArtifactResolver {
     private final RemoteRepository repo;
     private final RepositorySystemSession session;
 
+
     public ArtifactResolver() {
         system = Booter.newRepositorySystem();
         session = Booter.newRepositorySystemSession(system);
         repo = Booter.newCentralRepository();
     }
 
-    public DependencyGraph resolveToDependencyGraph(Artifact artifact) throws DependencyCollectionException {
+    public static void main(String[] args) {
+        ArtifactResolver artifactResolver = new ArtifactResolver();
+        try {
+            String artifactCoordinate = "org.apache.maven.plugins:maven-compiler-plugin:2.3";
+            DefaultArtifact artifact = new DefaultArtifact(artifactCoordinate);
+            DependencyGraph dependencyGraph = artifactResolver.resolveToDependencyGraph(artifact);
 
+            LOGGER.info("/===========================================\\");
+            LOGGER.info("Num: " + dependencyGraph.getEdges().size());
+        } catch (DependencyCollectionException e) {
+            LOGGER.error("Exception leaked up till main: ", e);
+        }
+    }
+
+    public DependencyGraph resolveToDependencyGraph(Artifact artifact) throws DependencyCollectionException {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Resolving: " + artifact);
         }
 
         CollectRequest collectRequest = new CollectRequest();
-        collectRequest.setRoot(new Dependency(artifact, JavaScopes.COMPILE)); //FIXME: Scope shouldn't matter
+        collectRequest.setRoot(new Dependency(artifact, "")); //FIXME: Scope shouldn't matter
+        collectRequest.addDependency(new Dependency(artifact, JavaScopes.COMPILE));
         collectRequest.addRepository(repo);
+
 
         CollectResult collectResult = null;
         try {
@@ -81,18 +100,47 @@ public class ArtifactResolver {
         return resultingDependencyGraph;
     }
 
-    public static void main(String[] args) {
-        ArtifactResolver artifactResolver = new ArtifactResolver();
-        try {
-            String artifactCoordinate = "org.apache.maven.plugins:maven-compiler-plugin:2.3";
-            DefaultArtifact artifact = new DefaultArtifact(artifactCoordinate);
-            DependencyGraph dependencyGraph = artifactResolver.resolveToDependencyGraph(artifact);
-
-            LOGGER.info("/===========================================\\");
-            LOGGER.info("Num: " + dependencyGraph.getEdges().size());
-        } catch (DependencyCollectionException e) {
-            LOGGER.error("Exception leaked up till main: ",e);
+    public DependencyGraph resolveToDependencyGraphv2(Artifact artifact) {
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Resolving: " + artifact);
         }
+
+
+        ArtifactDescriptorRequest descriptorRequest = new ArtifactDescriptorRequest();
+        descriptorRequest.setArtifact(artifact);
+        descriptorRequest.setRepositories(Booter.newRepositories(system, session));
+
+        ArtifactDescriptorResult descriptorResult = null;
+        try {
+            descriptorResult = system.readArtifactDescriptor(session, descriptorRequest);
+        } catch (ArtifactDescriptorException e) {
+            e.printStackTrace();
+        }
+
+        ArtifactVertex parent = new ArtifactVertex(artifact.getGroupId(), artifact.getArtifactId(), derivePackaging(artifact), artifact.getVersion(), artifact.getClassifier());
+        DependencyGraph dependencyGraph = new DependencyGraph();
+
+        for (Dependency dependency : descriptorResult.getDependencies()) {
+            System.out.println(dependency);
+            ArtifactVertex dest = new ArtifactVertex(dependency.getArtifact().getGroupId(), dependency.getArtifact().getArtifactId(), derivePackaging(dependency.getArtifact()), dependency.getArtifact().getVersion(), dependency.getArtifact().getClassifier());
+            dependencyGraph.addDependency(parent, dest, deriveScope(dependency));
+
+        }
+
+
+        DependencyGraph resultingDependencyGraph = dependencyGraph;
+        if (resultingDependencyGraph.getVertices().isEmpty()) {
+            LOGGER.error("No valid dependencies found for " + artifact);
+        }
+        return resultingDependencyGraph;
+    }
+
+    private Scope deriveScope(Dependency dependency) {
+        return Scope.parseFromString(dependency.getScope());
+    }
+
+    private ArtifactPackaging derivePackaging(Artifact artifact) {
+        return ArtifactPackaging.parseFromString(artifact.getExtension());
     }
 
 

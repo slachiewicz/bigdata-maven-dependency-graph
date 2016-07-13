@@ -17,9 +17,6 @@
 package nl.ordina.jtech.maven.analyzer.aether;
 
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
-import org.apache.maven.artifact.Artifact;
-import org.apache.maven.artifact.versioning.ArtifactVersion;
-import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 import org.junit.Test;
 import org.sonatype.aether.collection.DependencyCollectionException;
 import org.sonatype.aether.util.artifact.DefaultArtifact;
@@ -34,6 +31,15 @@ public class ResolveArtifact {
         ArtifactResolver resolver = new ArtifactResolver();
         String artifactCoordinate = "org.apache.maven:maven-aether-provider:3.1.0";
         DependencyGraph dependencyGraph = resolver.resolveToDependencyGraph(new DefaultArtifact(artifactCoordinate));
+        System.out.println(dependencyGraph.toJson());
+    }
+
+    @Test
+    public void resolve2() throws DependencyCollectionException {
+        ArtifactResolver resolver = new ArtifactResolver();
+
+        String artifactCoordinate = "org.apache.maven:maven-core:3.0.3";
+        DependencyGraph dependencyGraph = resolver.resolveToDependencyGraphv2(new DefaultArtifact(artifactCoordinate));
         System.out.println(dependencyGraph.toJson());
     }
 

@@ -18,9 +18,14 @@ package nl.ordina.jtech.maven.analyzer.aether;
 
 import org.apache.maven.repository.internal.MavenRepositorySystemSession;
 import org.sonatype.aether.RepositorySystem;
+import org.sonatype.aether.RepositorySystemSession;
 import org.sonatype.aether.repository.LocalRepository;
 import org.sonatype.aether.repository.RemoteRepository;
 import org.sonatype.aether.util.DefaultRepositorySystemSession;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * A helper to boot the repository system and a repository system session.
@@ -40,10 +45,14 @@ public class Booter {
         return session;
     }
 
+    public static List<RemoteRepository> newRepositories(RepositorySystem system, RepositorySystemSession session) {
+        return new ArrayList<RemoteRepository>(Arrays.asList(newCentralRepository()));
+    }
+
     public static RemoteRepository newCentralRepository() {
-//        return new RemoteRepository("central", "default", "http://uk.maven.org/maven2/");
+        return new RemoteRepository("central", "default", "http://maven.apache.org/maven2/");
 //        return new RemoteRepository("central", "default", "http://jtechbd-cldsrvc.cloudapp.net:8090/nexus/content/repositories/maven");
-        return new RemoteRepository("central", "default", "http://jtechbd-nexus:8090/nexus/content/repositories/maven");
+//        return new RemoteRepository("central", "default", "http://jtechbd-nexus:8090/nexus/content/repositories/maven");
 
     }
 
