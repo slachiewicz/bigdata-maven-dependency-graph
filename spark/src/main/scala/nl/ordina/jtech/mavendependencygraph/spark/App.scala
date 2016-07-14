@@ -5,7 +5,7 @@ import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 import org.apache.spark.{Logging, SparkConf}
-import org.sonatype.aether.util.artifact.DefaultArtifact
+import org.eclipse.aether.artifact.DefaultArtifact
 
 import scala.util.{Success, Try}
 import scalaj.http.{Http, HttpResponse}

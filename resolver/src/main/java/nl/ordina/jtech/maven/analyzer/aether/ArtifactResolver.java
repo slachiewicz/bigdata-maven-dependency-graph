@@ -20,21 +20,22 @@ import nl.ordina.jtech.mavendependencygraph.model.ArtifactPackaging;
 import nl.ordina.jtech.mavendependencygraph.model.ArtifactVertex;
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
 import nl.ordina.jtech.mavendependencygraph.model.Scope;
+import org.eclipse.aether.RepositorySystem;
+import org.eclipse.aether.RepositorySystemSession;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.CollectRequest;
+import org.eclipse.aether.collection.CollectResult;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.repository.RemoteRepository;
+import org.eclipse.aether.resolution.ArtifactDescriptorException;
+import org.eclipse.aether.resolution.ArtifactDescriptorRequest;
+import org.eclipse.aether.resolution.ArtifactDescriptorResult;
+import org.eclipse.aether.util.artifact.JavaScopes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.RepositorySystem;
-import org.sonatype.aether.RepositorySystemSession;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.collection.CollectRequest;
-import org.sonatype.aether.collection.CollectResult;
-import org.sonatype.aether.collection.DependencyCollectionException;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.repository.RemoteRepository;
-import org.sonatype.aether.resolution.ArtifactDescriptorException;
-import org.sonatype.aether.resolution.ArtifactDescriptorRequest;
-import org.sonatype.aether.resolution.ArtifactDescriptorResult;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
-import org.sonatype.aether.util.artifact.JavaScopes;
+
 
 /**
  * Resolver for artifacts
@@ -78,7 +79,7 @@ public class ArtifactResolver {
         collectRequest.addRepository(repo);
 
 
-        CollectResult collectResult = null;
+        CollectResult collectResult;
         try {
             collectResult = system.collectDependencies(session, collectRequest);
         } catch (DependencyCollectionException e) {
@@ -104,7 +105,6 @@ public class ArtifactResolver {
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("Resolving: " + artifact);
         }
-
 
         ArtifactDescriptorRequest descriptorRequest = new ArtifactDescriptorRequest();
         descriptorRequest.setArtifact(artifact);

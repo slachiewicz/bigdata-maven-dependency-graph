@@ -17,9 +17,11 @@
 package nl.ordina.jtech.maven.analyzer.aether;
 
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
+import org.eclipse.aether.artifact.DefaultArtifact;
+import org.eclipse.aether.collection.DependencyCollectionException;
+import org.eclipse.aether.resolution.ArtifactDescriptorException;
 import org.junit.Test;
-import org.sonatype.aether.collection.DependencyCollectionException;
-import org.sonatype.aether.util.artifact.DefaultArtifact;
+
 
 /**
  * Resolves a single artifact.
@@ -42,6 +44,17 @@ public class ResolveArtifact {
         DependencyGraph dependencyGraph = resolver.resolveToDependencyGraphv2(new DefaultArtifact(artifactCoordinate));
         System.out.println(dependencyGraph.toJson());
     }
+
+    @Test
+    public void resolve3() throws DependencyCollectionException, ArtifactDescriptorException {
+        ArtifactResolver resolver = new ArtifactResolver();
+
+        String artifactCoordinate = "cz.kinst.jakub:androidbase:0.1.3";
+        DependencyGraph dependencyGraph = resolver.resolveToDependencyGraphv2(new DefaultArtifact(artifactCoordinate));
+        System.out.println(dependencyGraph.toJson());
+    }
+
+
 
     @Test
     public void resolveDirty() throws DependencyCollectionException {

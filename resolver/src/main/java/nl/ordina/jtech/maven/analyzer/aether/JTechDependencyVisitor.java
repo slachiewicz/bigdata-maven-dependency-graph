@@ -4,21 +4,19 @@ import nl.ordina.jtech.mavendependencygraph.model.ArtifactPackaging;
 import nl.ordina.jtech.mavendependencygraph.model.ArtifactVertex;
 import nl.ordina.jtech.mavendependencygraph.model.DependencyGraph;
 import nl.ordina.jtech.mavendependencygraph.model.Scope;
+import org.eclipse.aether.artifact.Artifact;
+import org.eclipse.aether.graph.Dependency;
+import org.eclipse.aether.graph.DependencyNode;
+import org.eclipse.aether.graph.DependencyVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonatype.aether.artifact.Artifact;
-import org.sonatype.aether.graph.Dependency;
-import org.sonatype.aether.graph.DependencyNode;
-import org.sonatype.aether.graph.DependencyVisitor;
 
 import java.io.PrintStream;
 
 public class JTechDependencyVisitor implements DependencyVisitor {
 
-    private PrintStream out;
-
     private static final Logger LOGGER = LoggerFactory.getLogger(JTechDependencyVisitor.class);
-
+    private PrintStream out;
     private String currentIndent = "";
     private int currentIndentation = 0;
 
@@ -26,20 +24,20 @@ public class JTechDependencyVisitor implements DependencyVisitor {
 
     private ArtifactVertex firstLevelArtifactVertex;
 
-    public DependencyGraph getLocalDependencies() {
-        return localDependencies;
-    }
-
-    public void setLocalDependencies(DependencyGraph localDependencies) {
-        this.localDependencies = localDependencies;
-    }
-
     public JTechDependencyVisitor() {
         this(null);
     }
 
     public JTechDependencyVisitor(PrintStream out) {
         this.out = (out != null) ? out : System.out;
+    }
+
+    public DependencyGraph getLocalDependencies() {
+        return localDependencies;
+    }
+
+    public void setLocalDependencies(DependencyGraph localDependencies) {
+        this.localDependencies = localDependencies;
     }
 
     public boolean visitEnter(DependencyNode node) {
