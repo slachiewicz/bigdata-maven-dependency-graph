@@ -124,15 +124,13 @@ public class ArtifactResolver {
             System.out.println(dependency);
             ArtifactVertex dest = new ArtifactVertex(dependency.getArtifact().getGroupId(), dependency.getArtifact().getArtifactId(), derivePackaging(dependency.getArtifact()), dependency.getArtifact().getVersion(), dependency.getArtifact().getClassifier());
             dependencyGraph.addDependency(parent, dest, deriveScope(dependency));
-
         }
 
 
-        DependencyGraph resultingDependencyGraph = dependencyGraph;
-        if (resultingDependencyGraph.getVertices().isEmpty()) {
+        if (dependencyGraph.getVertices().isEmpty()) {
             LOGGER.error("No valid dependencies found for " + artifact);
         }
-        return resultingDependencyGraph;
+        return dependencyGraph;
     }
 
     private Scope deriveScope(Dependency dependency) {

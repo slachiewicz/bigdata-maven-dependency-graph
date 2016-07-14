@@ -35,7 +35,7 @@ object App extends Logging {
     val resolver: ArtifactResolver = new ArtifactResolver()
     val artifactCoordinate = mavenEntry.groupId + ":" + mavenEntry.artifactId + ":" + mavenEntry.version
     logInfo("ArtificactCoordinate: " + artifactCoordinate)
-    val dependencyGraph = resolver.resolveToDependencyGraph(new DefaultArtifact(artifactCoordinate))
+    val dependencyGraph = resolver.resolveToDependencyGraphv2(new DefaultArtifact(artifactCoordinate))
     dependencyGraph match {
       case null => None
       case _ => Some(dependencyGraph)
