@@ -120,10 +120,12 @@ public class ArtifactResolver {
         ArtifactVertex parent = new ArtifactVertex(artifact.getGroupId(), artifact.getArtifactId(), derivePackaging(artifact), artifact.getVersion(), artifact.getClassifier());
         DependencyGraph dependencyGraph = new DependencyGraph();
 
-        for (Dependency dependency : descriptorResult.getDependencies()) {
-            System.out.println(dependency);
-            ArtifactVertex dest = new ArtifactVertex(dependency.getArtifact().getGroupId(), dependency.getArtifact().getArtifactId(), derivePackaging(dependency.getArtifact()), dependency.getArtifact().getVersion(), dependency.getArtifact().getClassifier());
-            dependencyGraph.addDependency(parent, dest, deriveScope(dependency));
+        if (descriptorResult != null) {
+            for (Dependency dependency : descriptorResult.getDependencies()) {
+                System.out.println(dependency);
+                ArtifactVertex dest = new ArtifactVertex(dependency.getArtifact().getGroupId(), dependency.getArtifact().getArtifactId(), derivePackaging(dependency.getArtifact()), dependency.getArtifact().getVersion(), dependency.getArtifact().getClassifier());
+                dependencyGraph.addDependency(parent, dest, deriveScope(dependency));
+            }
         }
 
 
