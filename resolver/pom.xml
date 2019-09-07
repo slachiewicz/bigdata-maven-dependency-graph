@@ -33,7 +33,7 @@
     <properties>
         <aetherVersion>1.13.1</aetherVersion>
         <mavenVersion>3.0.3</mavenVersion>
-        <wagonVersion>2.10</wagonVersion>
+        <wagonVersion>2.12</wagonVersion>
     </properties>
 
     <dependencies>
